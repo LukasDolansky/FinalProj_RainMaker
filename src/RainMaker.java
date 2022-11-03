@@ -7,6 +7,7 @@
         import javafx.scene.layout.Pane;
         import javafx.scene.layout.StackPane;
         import javafx.scene.paint.Color;
+        import javafx.scene.shape.Line;
         import javafx.scene.shape.Rectangle;
         import javafx.scene.shape.Circle;
         import javafx.stage.Stage;
@@ -16,7 +17,7 @@
 public class RainMaker extends Application{
 
 
-    static Heli Helicopter;
+    static Heli Heli;
     static Pond Pond;
     static Cloud Cloud;
     static HeliPad HeliPad;
@@ -32,6 +33,8 @@ public class RainMaker extends Application{
     @Override
     public void start(final Stage primaryStage) {
 // setting the scene, random numbers, rotate
+
+
         Random random = new Random();
         int rNum = random.nextInt(30,60);
         int rNum2 = random.nextInt(30,60);
@@ -39,7 +42,7 @@ public class RainMaker extends Application{
         int rNum4 = random.nextInt(30,60);
 
 
-        Heli Helicopter = new Heli(rNum, 100);
+        Heli Heli = new Heli(rNum, 100);
 
         //creating the Pond
         Pond Pond = new Pond(4*rNum, 2*rNum);
@@ -47,7 +50,7 @@ public class RainMaker extends Application{
         HeliPad HeliPad = new HeliPad((Width/2),Height*5/6);
 
 
-        PongApp PongApp = new PongApp(Helicopter, Pond, Cloud,HeliPad);
+        PongApp PongApp = new PongApp(Heli, Pond, Cloud,HeliPad);
 
 
 
@@ -58,6 +61,25 @@ public class RainMaker extends Application{
         //holder.getChildren().add(canvas);
         final Scene scene = new Scene(canvas, Width, Height);
 
+        scene.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case A:
+                    Heli.turnLeft();
+                    break;
+                case D:
+                    Heli.turnRight();
+                    break;
+                case W:
+                    Heli.goForward();
+                    break;
+                case S:
+                    Heli.goBackward();
+                    break;
+                case SPACE:
+                    Heli.seed();
+                    break;
+            }
+        });
         primaryStage.setTitle("RainMaker");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -75,7 +97,7 @@ public class RainMaker extends Application{
 
         //Water.getChildren().addAll(Pond,Wet);
         //Air.getChildren().addAll(Cloud,Dry);
-        canvas.getChildren().addAll(Helicopter, Pond,Cloud,Wet,Dry,HeliPad);
+        canvas.getChildren().addAll(Heli, Pond,Cloud,Wet,Dry,HeliPad);
 
         //canvas.setOnKeyPressed(e -> keyPressed(e));
 
@@ -88,7 +110,7 @@ public class RainMaker extends Application{
 
 
                 PongApp.run();
-                Helicopter.updateLocation();
+                Heli.updateLocation();
 
 
             }
@@ -107,14 +129,14 @@ public class RainMaker extends Application{
 }
 
 class PongApp {
-    private Heli Helicopter;
+    private Heli Heli;
     private Pond Pond;
     private Cloud Cloud;
     private HeliPad HeliPad;
 
 
-    public PongApp(Heli Helicopter, Pond Pond, Cloud Cloud,HeliPad HeliPad) {
-        this.Helicopter = Helicopter;
+    public PongApp(Heli Heli, Pond Pond, Cloud Cloud,HeliPad HeliPad) {
+        this.Heli = Heli;
         this.Pond = Pond;
         this.Cloud = Cloud;
         this.HeliPad = HeliPad;
@@ -123,30 +145,30 @@ class PongApp {
 
     public void run() {
 /*
-        //boolean atRightBorder = Helicopter.getLayoutX() >= (RainMaker.Width - Helicopter.getWidth());
-        //boolean atLeftBorder = Helicopter.getLayoutX() <= (0 + Helicopter.getWidth());
-        //boolean atBottomBorder = Helicopter.getLayoutY() >= (RainMaker.Height - Helicopter.getHeight());
-        //boolean atTopBorder = Helicopter.getLayoutY() <= (0 + Helicopter.getHeight());
-        //boolean Contact = !Shape.intersect(Pond, Helicopter).;
+        //boolean atRightBorder = Heli.getLayoutX() >= (RainMaker.Width - Heli.getWidth());
+        //boolean atLeftBorder = Heli.getLayoutX() <= (0 + Heli.getWidth());
+        //boolean atBottomBorder = Heli.getLayoutY() >= (RainMaker.Height - Heli.getHeight());
+        //boolean atTopBorder = Heli.getLayoutY() <= (0 + Heli.getHeight());
+        //boolean Contact = !Shape.intersect(Pond, Heli).;
 
 
 
         //if (atRightBorder || atLeftBorder) {
             //Sound.play(500);
-            Helicopter.changeX();
+            Heli.changeX();
         }
 
         if (atTopBorder) {
             //Sound.play(500);
-            Helicopter.changeY();
+            Heli.changeY();
 
         }
         //if (Contact) {
         //Sound.play(500);
-        //    Helicopter.Hit();
+        //    Heli.Hit();
         //}
         if (atBottomBorder) {
-            Helicopter.changeY();
+            Heli.changeY();
         }
     }
 
@@ -202,12 +224,21 @@ class PongApp {
         //class HeliPad extends
 
     class Heli extends GameObject {
+        private final Circle body;
+        private final Line Nose;
 
         int deltaX = 0;
         int deltaY = 0;
 
+
+
         public Heli(int Xcord, int Ycord) {
             super(Xcord, Ycord);
+            body = new Circle (Xcord, Ycord, RainMaker.Height/48);
+            Nose = new Line (0,0,0, RainMaker.Height/12);
+            body.setFill(Color.YELLOWGREEN);
+            Nose.setStroke(Color.YELLOWGREEN);
+            getChildren().addAll(body,Nose);
         }
 
         public void updateLocation() {
@@ -222,6 +253,27 @@ class PongApp {
         public void changeY() {
             deltaY *= -1;
         }
+        public void turnLeft() {
+            deltaY += .1;
+            System.out.println("L");
+        }
+        public void turnRight() {
+            deltaY += -.1;
+            System.out.println("R");
+        }
+        public void goForward() {
+            deltaY += .1;
+            System.out.println("F");
+        }
+        public void goBackward() {
+            deltaY += -.1;
+            System.out.println("B");
+        }
+
+        public void seed() { deltaY += -.1;
+            System.out.println("S");
+        }
+
 
         public void falls() {
             Random random = new Random();
@@ -250,8 +302,8 @@ class PongApp {
                 super(x,y);
                 bubble = new Circle (x, y, size);
                 Square = new Rectangle (x, y, 2.5*size, 2.5*size);
-                bubble.setFill(Color.YELLOW);
-                Square.setFill(Color.BLUEVIOLET);
+                bubble.setFill(Color.BLUEVIOLET);
+                Square.setFill(Color.TURQUOISE);
                 getChildren().addAll(Square,bubble);
                 super.setLayoutX(x-(Square.getWidth()/2));
                 super.setLayoutY(y-size);
