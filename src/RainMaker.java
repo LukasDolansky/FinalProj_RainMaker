@@ -141,10 +141,12 @@ class PongApp {
 
     }
 
-
+    int  i = 0;
     public void run() {
-
-
+        i++;
+        if(i%60 == 0) {
+            System.out.println("This is called " + i/60 + " time");
+        }
         //System.out.println("yoyo");
 /*
         //boolean atRightBorder = Heli.getLayoutX() >= (RainMaker.Width - Heli.getWidth());
@@ -188,7 +190,6 @@ class PongApp {
 
 
     }
-
     class Pond extends Cloud_Pond {
 
         int ReclimationTotal = 28;
@@ -228,9 +229,7 @@ class PongApp {
         }
 
         }
-
-        //class HeliPad extends
-        class Cloud_Pond extends GameObject{
+    class Cloud_Pond extends GameObject{
             private final Circle WaterBody;
             private final Label total;
 
@@ -322,7 +321,7 @@ class PongApp {
 
 
     }
-        class HeliPad extends GameObject{
+    class HeliPad extends GameObject{
             private final Circle bubble;
             private final Rectangle Square;
             private final int size = RainMaker.Height/12;
