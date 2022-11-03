@@ -13,8 +13,10 @@
         import javafx.stage.Stage;
         import javafx.scene.control.Label;
 
+        import static java.lang.Math.*;
 
-public class RainMaker extends Application{
+
+        public class RainMaker extends Application{
 
 
     static Heli Heli;
@@ -64,10 +66,10 @@ public class RainMaker extends Application{
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
                 case A:
-                    Heli.turnLeft();
+                    Heli.turnRight();
                     break;
                 case D:
-                    Heli.turnRight();
+                    Heli.turnLeft();
                     break;
                 case W:
                     Heli.goForward();
@@ -80,6 +82,7 @@ public class RainMaker extends Application{
                     break;
             }
         });
+
         primaryStage.setTitle("RainMaker");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -144,6 +147,7 @@ class PongApp {
 
 
     public void run() {
+        //System.out.println("yoyo");
 /*
         //boolean atRightBorder = Heli.getLayoutX() >= (RainMaker.Width - Heli.getWidth());
         //boolean atLeftBorder = Heli.getLayoutX() <= (0 + Heli.getWidth());
@@ -227,8 +231,10 @@ class PongApp {
         private final Circle body;
         private final Line Nose;
 
-        int deltaX = 0;
-        int deltaY = 0;
+        double velocity = 0;
+        double deltaX = 0;
+        double deltaY = 0;
+        int rotate = 0;
 
 
 
@@ -239,35 +245,32 @@ class PongApp {
             body.setFill(Color.YELLOWGREEN);
             Nose.setStroke(Color.YELLOWGREEN);
             getChildren().addAll(body,Nose);
+            super.setRotate(rotate);
         }
 
         public void updateLocation() {
+            deltaX = velocity*sin(toRadians(-rotate));
+            deltaY = velocity*cos(toRadians(-rotate));
+            super.setRotate(rotate);
             super.setLayoutY(super.getLayoutY() + deltaY);
             super.setLayoutX(super.getLayoutX() + deltaX);
         }
 
-        public void changeX() {
-            deltaX *= -1;
-        }
-
-        public void changeY() {
-            deltaY *= -1;
-        }
         public void turnLeft() {
-            deltaY += .1;
-            System.out.println("L");
+            rotate += 15;
+            System.out.println(rotate);
         }
         public void turnRight() {
-            deltaY += -.1;
-            System.out.println("R");
+            rotate += -15;
+            System.out.println(rotate);
         }
         public void goForward() {
-            deltaY += .1;
-            System.out.println("F");
+            velocity += -.1;
+            System.out.println(velocity);
         }
         public void goBackward() {
-            deltaY += -.1;
-            System.out.println("B");
+            velocity += .1;
+            System.out.println(velocity);
         }
 
         public void seed() { deltaY += -.1;
