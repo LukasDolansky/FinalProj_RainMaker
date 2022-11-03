@@ -4,20 +4,13 @@
         import javafx.animation.AnimationTimer;
         import javafx.application.Application;
         import javafx.scene.Scene;
-        import javafx.scene.input.KeyCode;
         import javafx.scene.layout.Pane;
         import javafx.scene.layout.StackPane;
         import javafx.scene.paint.Color;
-        import javafx.scene.shape.Ellipse;
         import javafx.scene.shape.Rectangle;
         import javafx.scene.shape.Circle;
-
         import javafx.stage.Stage;
         import javafx.scene.control.Label;
-        import javafx.scene.transform.Rotate;
-        import javafx.scene.input.MouseEvent;
-
-        import javax.sound.midi.*;
 
 
 public class RainMaker extends Application{
@@ -57,7 +50,7 @@ public class RainMaker extends Application{
         //creating the Pond
         Pond Pond = new Pond(4*rNum, 2*rNum, rNum3,0,  Color.BLUE);
         Cloud Cloud = new Cloud(4*rNum2, 4*rNum2, rNum4,0,  Color.WHITE);
-        HeliPad HeliPad = new HeliPad("yomamaaaaaaaaaaaaaaaaaaa",200,200);
+        HeliPad HeliPad = new HeliPad((Width/2),Height*5/6);
 
 
         PongApp PongApp = new PongApp(Helicopter, Pond, Cloud,HeliPad);
@@ -259,18 +252,19 @@ class PongApp {
     }
         class HeliPad extends StackPane{
             private final Circle bubble;
-            private final Label text;
+            private final Rectangle Square;
+            private final int size = RainMaker.Height/12;
 
 
-            HeliPad(String text, double x, double y)
+            HeliPad(double x, double y)
             {
-                this.text = new Label(text);
-                System.out.println(this.text.getBoundsInLocal().getWidth());
-                bubble = new Circle (x, y, 60);
+                bubble = new Circle (x, y, size);
+                Square = new Rectangle (x, y, 2.5*size, 2.5*size);
                 bubble.setFill(Color.YELLOW);
-                getChildren().addAll(bubble, this.text);
-                super.setLayoutX(x);
-                super.setLayoutY(y);
+                Square.setFill(Color.BLUEVIOLET);
+                getChildren().addAll(Square,bubble);
+                super.setLayoutX(x-(Square.getWidth()/2));
+                super.setLayoutY(y-size);
             }
         }
 
