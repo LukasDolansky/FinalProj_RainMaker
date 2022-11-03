@@ -19,10 +19,11 @@
         public class RainMaker extends Application{
 
 
-    static Heli Heli;
     static Pond Pond;
     static Cloud Cloud;
     static HeliPad HeliPad;
+    static Heli Heli;
+
     private static Pane canvas;
 
 
@@ -38,21 +39,23 @@
 
 
         Random random = new Random();
-        int rNum = random.nextInt(30,60);
-        int rNum2 = random.nextInt(30,60);
-        int rNum3 = random.nextInt(30,60);
-        int rNum4 = random.nextInt(30,60);
+        int x1 = random.nextInt(5,Width-50);
+        int y1 = random.nextInt(0,Height/3);
+        int x2 = random.nextInt(5,Width-50);
+        int y2 = random.nextInt(0,Height/3);
+        double PondNum = random.nextInt(20,50);
+        double CloudNum = random.nextInt(20,50);
 
 
-        Heli Heli = new Heli(rNum, 100);
 
         //creating the Pond
-        Pond Pond = new Pond(4*rNum, 2*rNum);
-        Cloud Cloud = new Cloud(4*rNum2, 4*rNum2);
+        Pond Pond = new Pond(x1, y1,(PondNum / 2) +20,Double.toString(PondNum)+"%", Color.BLUE);
+        Cloud Cloud = new Cloud(x2, y2,(CloudNum / 2) +20,Double.toString(CloudNum)+"%", Color.GRAY);
         HeliPad HeliPad = new HeliPad((Width/2),Height*5/6);
+        Heli Heli = new Heli(Height/2, 500);
 
 
-        PongApp PongApp = new PongApp(Heli, Pond, Cloud,HeliPad);
+        PongApp PongApp = new PongApp(Pond, Cloud,HeliPad,Heli);
 
 
 
@@ -87,20 +90,10 @@
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        String k = String.valueOf(rNum2);
-        String m = String.valueOf(rNum3);
-
-
-        Label Wet=new Label(k+"%");
-        Label Dry=new Label(m+"%");
-        Wet.setLayoutX(4*rNum-5);
-        Wet.setLayoutY(2*rNum-5);
-        Dry.setLayoutX(4*rNum2-5);
-        Dry.setLayoutY(4*rNum2-5);
 
         //Water.getChildren().addAll(Pond,Wet);
         //Air.getChildren().addAll(Cloud,Dry);
-        canvas.getChildren().addAll(Heli, Pond,Cloud,Wet,Dry,HeliPad);
+        canvas.getChildren().addAll(Heli, Pond,Cloud,HeliPad);
 
         //canvas.setOnKeyPressed(e -> keyPressed(e));
 
@@ -132,21 +125,26 @@
 }
 
 class PongApp {
-    private Heli Heli;
+
     private Pond Pond;
     private Cloud Cloud;
     private HeliPad HeliPad;
 
+    private Heli Heli;
 
-    public PongApp(Heli Heli, Pond Pond, Cloud Cloud,HeliPad HeliPad) {
-        this.Heli = Heli;
+
+    public PongApp(Pond Pond, Cloud Cloud,HeliPad HeliPad,Heli Heli) {
         this.Pond = Pond;
         this.Cloud = Cloud;
         this.HeliPad = HeliPad;
+        this.Heli = Heli;
+
     }
 
 
     public void run() {
+
+
         //System.out.println("yoyo");
 /*
         //boolean atRightBorder = Heli.getLayoutX() >= (RainMaker.Width - Heli.getWidth());
@@ -191,15 +189,16 @@ class PongApp {
 
     }
 
-    class Pond extends GameObject {
+    class Pond extends Cloud_Pond {
 
         int ReclimationTotal = 28;
         int Xcord;
         int Ycord;
 
 
-        public Pond(int Xcord, int Ycord) {
-            super(Xcord, Ycord);
+        public Pond(int Xcord, int Ycord, double size,String  percent,Color Color) {
+            super(Xcord, Ycord,size,percent,Color);
+
         }
 
         public int getXCoord() {
@@ -210,23 +209,44 @@ class PongApp {
         }
 
     }
-        class Cloud extends GameObject {
+    class Cloud extends Cloud_Pond {
 
             int ReclimationTotal = 28;
 
-            public Cloud(int Xcord, int Ycord) {
-                super(Xcord, Ycord);
-            }
+            public Cloud(int Xcord, int Ycord, double size,String  percent,Color Color) {
+                super(Xcord, Ycord,size,percent,Color);
 
-            public void changeX(int r) {
+            }
+            public void Seeded(int r) {
                 System.out.println("r");
+
                 super.setLayoutX(r);
             }
+        public void Decay(int r) {
+            System.out.println("r");
+            super.setLayoutX(r);
+        }
 
         }
 
         //class HeliPad extends
+        class Cloud_Pond extends GameObject{
+            private final Circle WaterBody;
+            private final Label total;
 
+
+            public Cloud_Pond(int Xcord, int Ycord, double size,String percent,Color Color) {
+                super(Xcord, Ycord);
+                WaterBody = new Circle (Xcord, Ycord, size);
+                total = new Label(percent);
+
+                WaterBody.setFill(Color);
+                getChildren().addAll(WaterBody,total);
+
+
+            }
+
+        }
     class Heli extends GameObject {
         private final Circle body;
         private final Line Nose;
@@ -266,12 +286,20 @@ class PongApp {
         }
         public void goForward() {
             velocity += -.1;
+            if (velocity<-10){
+                velocity = -10;
+            }
             System.out.println(velocity);
+
         }
         public void goBackward() {
             velocity += .1;
+            if (velocity>2){
+                velocity = 2;
+            }
             System.out.println(velocity);
         }
+
 
         public void seed() { deltaY += -.1;
             System.out.println("S");
