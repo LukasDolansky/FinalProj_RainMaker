@@ -22,16 +22,10 @@ public class RainMaker extends Application{
     static HeliPad HeliPad;
     private static Pane canvas;
 
-    static boolean dragging = false;
-    private static int total;
 
     static int Height = 600;
     static int Width = 400;
-    //scene.setOnKeyPressed(e -> {
-      //      if (e.getCode() == KeyCode.A) {
-        //        System.out.println("A key was pressed");
-          //  }
-        //});
+
 
 
 
@@ -45,11 +39,11 @@ public class RainMaker extends Application{
         int rNum4 = random.nextInt(30,60);
 
 
-        Heli Helicopter = new Heli(rNum, 100,25,0, Color.BLUE);
+        Heli Helicopter = new Heli(rNum, 100);
 
         //creating the Pond
-        Pond Pond = new Pond(4*rNum, 2*rNum, rNum3,0,  Color.BLUE);
-        Cloud Cloud = new Cloud(4*rNum2, 4*rNum2, rNum4,0,  Color.WHITE);
+        Pond Pond = new Pond(4*rNum, 2*rNum);
+        Cloud Cloud = new Cloud(4*rNum2, 4*rNum2);
         HeliPad HeliPad = new HeliPad((Width/2),Height*5/6);
 
 
@@ -161,28 +155,25 @@ class PongApp {
     }
 
 }
-    abstract class PhysicsObject extends Circle {
+    abstract class GameObject extends StackPane {
 
-        public PhysicsObject(int Xcord, int Ycord, int width, int rotate, Color Color) {
-            super.setRadius(width);
+        public GameObject(int Xcord, int Ycord) {
             super.setLayoutX(Xcord);
             super.setLayoutY(Ycord);
-            super.setRotate(rotate);
-            super.setFill(Color);
         }
 
 
     }
 
-    class Pond extends PhysicsObject {
+    class Pond extends GameObject {
 
         int ReclimationTotal = 28;
         int Xcord;
         int Ycord;
 
 
-        public Pond(int Xcord, int Ycord, int radius, int rotate, Color Color) {
-            super(Xcord, Ycord, radius, rotate, Color);
+        public Pond(int Xcord, int Ycord) {
+            super(Xcord, Ycord);
         }
 
         public int getXCoord() {
@@ -193,12 +184,12 @@ class PongApp {
         }
 
     }
-        class Cloud extends PhysicsObject {
+        class Cloud extends GameObject {
 
             int ReclimationTotal = 28;
 
-            public Cloud(int Xcord, int Ycord, int radius, int rotate, Color Color) {
-                super(Xcord, Ycord, radius, rotate, Color);
+            public Cloud(int Xcord, int Ycord) {
+                super(Xcord, Ycord);
             }
 
             public void changeX(int r) {
@@ -210,20 +201,18 @@ class PongApp {
 
         //class HeliPad extends
 
-    class Heli extends PhysicsObject {
+    class Heli extends GameObject {
 
-        int deltaX = 3;
-        int deltaY = 3;
-        int rotate;
+        int deltaX = 0;
+        int deltaY = 0;
 
-        public Heli(int Xcord, int Ycord, int width, int rotate, Color Color) {
-            super(Xcord, Ycord, width, rotate, Color);
+        public Heli(int Xcord, int Ycord) {
+            super(Xcord, Ycord);
         }
 
         public void updateLocation() {
             super.setLayoutY(super.getLayoutY() + deltaY);
             super.setLayoutX(super.getLayoutX() + deltaX);
-            super.setRotate(super.getRotate() + rotate);
         }
 
         public void changeX() {
@@ -250,14 +239,15 @@ class PongApp {
 
 
     }
-        class HeliPad extends StackPane{
+        class HeliPad extends GameObject{
             private final Circle bubble;
             private final Rectangle Square;
             private final int size = RainMaker.Height/12;
 
 
-            HeliPad(double x, double y)
+            HeliPad(int x, int y)
             {
+                super(x,y);
                 bubble = new Circle (x, y, size);
                 Square = new Rectangle (x, y, 2.5*size, 2.5*size);
                 bubble.setFill(Color.YELLOW);
