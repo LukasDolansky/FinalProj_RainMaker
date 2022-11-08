@@ -49,13 +49,13 @@
 
 
         //creating the Pond
-        Pond Pond = new Pond(x1, y1,(PondNum / 2) +20,Double.toString(PondNum)+"%", Color.BLUE);
-        Cloud Cloud = new Cloud(x2, y2,(CloudNum / 2) +20,Double.toString(CloudNum)+"%", Color.GRAY);
+        Pond Pond = new Pond(x1, y1,(PondNum / 2) +20,PondNum, Color.BLUE);
+        Cloud Cloud = new Cloud(x2, y2,(CloudNum / 2) +20,0, Color.WHITE);
         HeliPad HeliPad = new HeliPad((Width/2),Height*5/6);
-        Heli Heli = new Heli(Height/2, 500);
+        Heli Heli = new Heli(Width/2, Height*5/6);
 
 
-        PongApp PongApp = new PongApp(Pond, Cloud,HeliPad,Heli);
+        Game Game = new Game(Pond, Cloud, HeliPad, Heli);
 
 
 
@@ -81,7 +81,7 @@
                     Heli.goBackward();
                     break;
                 case SPACE:
-                    Heli.seed();
+                    Cloud.Increase(1);
                     break;
             }
         });
@@ -90,13 +90,7 @@
         primaryStage.setScene(scene);
         primaryStage.show();
 
-
-        //Water.getChildren().addAll(Pond,Wet);
-        //Air.getChildren().addAll(Cloud,Dry);
-        canvas.getChildren().addAll(Heli, Pond,Cloud,HeliPad);
-
-        //canvas.setOnKeyPressed(e -> keyPressed(e));
-
+        canvas.getChildren().addAll( Pond,Cloud,HeliPad,Heli);
 
         AnimationTimer loop = new AnimationTimer() {
 
@@ -104,9 +98,9 @@
             @Override
             public void handle(long now) {
 
-
-                PongApp.run();
                 Heli.updateLocation();
+                Game.run();
+
 
 
             }
@@ -116,15 +110,13 @@
 
 
     }
-
     public static void main(final String[] args) {
 
         launch(args);
     }
-
 }
 
-class PongApp {
+class Game extends Pane{
 
     private Pond Pond;
     private Cloud Cloud;
@@ -133,11 +125,12 @@ class PongApp {
     private Heli Heli;
 
 
-    public PongApp(Pond Pond, Cloud Cloud,HeliPad HeliPad,Heli Heli) {
+    public Game(Pond Pond, Cloud Cloud,HeliPad HeliPad,Heli Heli) {
         this.Pond = Pond;
         this.Cloud = Cloud;
         this.HeliPad = HeliPad;
         this.Heli = Heli;
+        this.setScaleY(-1);
 
     }
 
@@ -145,38 +138,12 @@ class PongApp {
     public void run() {
         i++;
         if(i%60 == 0) {
+            Cloud.Increase(-1);
             System.out.println("This is called " + i/60 + " time");
+            if(Cloud.ReclimationTotal>29){
+                Pond.Growth();
+            }
         }
-        //System.out.println("yoyo");
-/*
-        //boolean atRightBorder = Heli.getLayoutX() >= (RainMaker.Width - Heli.getWidth());
-        //boolean atLeftBorder = Heli.getLayoutX() <= (0 + Heli.getWidth());
-        //boolean atBottomBorder = Heli.getLayoutY() >= (RainMaker.Height - Heli.getHeight());
-        //boolean atTopBorder = Heli.getLayoutY() <= (0 + Heli.getHeight());
-        //boolean Contact = !Shape.intersect(Pond, Heli).;
-
-
-
-        //if (atRightBorder || atLeftBorder) {
-            //Sound.play(500);
-            Heli.changeX();
-        }
-
-        if (atTopBorder) {
-            //Sound.play(500);
-            Heli.changeY();
-
-        }
-        //if (Contact) {
-        //Sound.play(500);
-        //    Heli.Hit();
-        //}
-        if (atBottomBorder) {
-            Heli.changeY();
-        }
-    }
-
-*/
 
     }
 
@@ -192,12 +159,12 @@ class PongApp {
     }
     class Pond extends Cloud_Pond {
 
-        int ReclimationTotal = 28;
         int Xcord;
         int Ycord;
 
 
-        public Pond(int Xcord, int Ycord, double size,String  percent,Color Color) {
+        public Pond(int Xcord, int Ycord, double size,double percent,
+                    Color Color) {
             super(Xcord, Ycord,size,percent,Color);
 
         }
@@ -212,38 +179,63 @@ class PongApp {
     }
     class Cloud extends Cloud_Pond {
 
-            int ReclimationTotal = 28;
+            //double ReclimationTotal;
 
-            public Cloud(int Xcord, int Ycord, double size,String  percent,Color Color) {
+
+        public Cloud(int Xcord, int Ycord, double size,double percent
+                ,Color Color) {
                 super(Xcord, Ycord,size,percent,Color);
+                ReclimationTotal = percent;
 
             }
             public void Seeded(int r) {
                 System.out.println("r");
 
-                super.setLayoutX(r);
+                //super.setLayoutX(r);
             }
-        public void Decay(int r) {
-            System.out.println("r");
-            super.setLayoutX(r);
-        }
+
 
         }
     class Cloud_Pond extends GameObject{
-            private final Circle WaterBody;
-            private final Label total;
+        double ReclimationTotal;
+
+        private final Circle WaterBody;
+        private final Label total;
 
 
-            public Cloud_Pond(int Xcord, int Ycord, double size,String percent,Color Color) {
+            public Cloud_Pond(int Xcord, int Ycord, double size,Double percent
+                    ,Color Color) {
                 super(Xcord, Ycord);
                 WaterBody = new Circle (Xcord, Ycord, size);
-                total = new Label(percent);
+                total = new Label(Double.toString(percent)+ "%");
+                ReclimationTotal = percent;
 
                 WaterBody.setFill(Color);
                 getChildren().addAll(WaterBody,total);
 
 
             }
+
+            public void Growth(){
+                ReclimationTotal = ReclimationTotal+1;
+                if (ReclimationTotal>99){
+                    ReclimationTotal = 100;
+                }
+                total.setText(Double.toString(ReclimationTotal)+"%");
+                WaterBody.setRadius((ReclimationTotal/2)+20);
+            }public void Increase(int x){
+            ReclimationTotal = ReclimationTotal + x;
+            if (ReclimationTotal>99){
+                ReclimationTotal = 100;
+            }
+            if (ReclimationTotal<1){
+                ReclimationTotal = 0;
+            }
+            total.setText(Double.toString(ReclimationTotal)+"%");
+            int ColorVal = 256- ((int)(ReclimationTotal));
+            Color c = Color.rgb(ColorVal,ColorVal,ColorVal);
+            WaterBody.setFill(c);
+        }
 
         }
     class Heli extends GameObject {
