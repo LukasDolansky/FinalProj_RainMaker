@@ -28,11 +28,13 @@
 
     static int Height = 600;
     static int Width = 400;
+    public static boolean ignition = false;
 
 
 
 
-    @Override
+
+            @Override
     public void start(final Stage primaryStage) {
 // setting the scene, random numbers, rotate
 
@@ -62,7 +64,6 @@
 
         canvas = new Pane();
         canvas.setStyle("-fx-background-color: black");
-        //holder.getChildren().add(canvas);
         final Scene scene = new Scene(canvas, Width, Height);
 
         scene.setOnKeyPressed(e -> {
@@ -81,6 +82,9 @@
                     break;
                 case SPACE:
                     Cloud.Increase(1);
+                    break;
+                case I:
+                    ignition = !ignition;
                     break;
             }
         });
@@ -120,7 +124,6 @@ class Game extends Pane{
     private Pond Pond;
     private Cloud Cloud;
     private HeliPad HeliPad;
-
     private Heli Heli;
 
 
@@ -129,24 +132,47 @@ class Game extends Pane{
         this.Cloud = Cloud;
         this.HeliPad = HeliPad;
         this.Heli = Heli;
-        this.setScaleY(-1);
+
 
     }
 
     int  i = 0;
+    double rotationSpeed = 0;
     public void run() {
+
+
+
         i++;
-        Heli.lessGas();
+        if(RainMaker.ignition) {
+            if(i%10 == 0 && rotationSpeed <10) {
+                rotationSpeed = rotationSpeed + .5;
+            }else{
+
+            }
+
+            Heli.spin(rotationSpeed);
+            Heli.lessGas();
+
+        }
+        if(!RainMaker.ignition) {
+            if(i%10 == 0 && rotationSpeed >0) {
+                rotationSpeed = rotationSpeed - .5;
+            }
+
+            Heli.spin(rotationSpeed);
+            //Heli.lessGas();
+
+        }
         if(i%60 == 0) {
+        //rotationSpeed--;
+
             Cloud.Increase(-1);
             System.out.println("This is called " + i/60 + " time");
             if(Cloud.ReclimationTotal>29){
                 Pond.Growth();
             }
         }
-
     }
-
 }
     abstract class GameObject extends StackPane {
 
@@ -161,14 +187,11 @@ class Game extends Pane{
 
         int Xcord;
         int Ycord;
-
-
         public Pond(int Xcord, int Ycord, double size,double percent,
                     Color Color) {
             super(Xcord, Ycord,size,percent,Color);
 
         }
-
         public int getXCoord() {
             return Xcord;
         }
@@ -178,8 +201,6 @@ class Game extends Pane{
 
     }
     class Cloud extends Cloud_Pond {
-
-            //double ReclimationTotal;
 
 
         public Cloud(int Xcord, int Ycord, double size,double percent
@@ -191,7 +212,6 @@ class Game extends Pane{
             public void Seeded(int r) {
                 System.out.println("r");
 
-                //super.setLayoutX(r);
             }
 
 
@@ -240,38 +260,43 @@ class Game extends Pane{
         }
     class Heli extends GameObject {
         private final Circle body;
-        private final Line Nose;
-
+        private final Line Nose1;
+        private final Line Nose2;
+        private boolean heliMobile;
         double velocity = 0;
         double deltaX = 0;
         double deltaY = 0;
         int rotate = 0;
+        double rotated = 0;
+
 
         double gas = 25000;
         private final Label gasLabel;
 
         public Heli(int Xcord, int Ycord) {
             super(Xcord, Ycord);
-            body = new Circle (Xcord, Ycord, RainMaker.Height/48);
-            Nose = new Line (0,0,0, RainMaker.Height/12);
-            body.setFill(Color.YELLOWGREEN);
-            Nose.setStroke(Color.YELLOWGREEN);
-            gasLabel = new Label(Double.toString(gas));
-            getChildren().addAll(body,Nose,gasLabel);
-            super.setRotate(rotate);
-        }
+            body = new Circle(Xcord, Ycord, RainMaker.Height / 48);
+            Nose1 = new Line(0, 0, 0, RainMaker.Height / 12);
+            Nose2 = new Line(0, 0, 0, RainMaker.Height / 12);
 
+            body.setFill(Color.YELLOWGREEN);
+            Nose1.setStroke(Color.CRIMSON);
+            Nose2.setStroke(Color.CRIMSON);
+
+            gasLabel = new Label("F:" + Double.toString(gas));
+            getChildren().addAll(body, Nose1, Nose2, gasLabel);
+            super.setRotate(rotate);
+            Nose2.setRotate(90);
+        }
 
 
         public void updateLocation() {
-            deltaX = velocity*sin(toRadians(-rotate));
-            deltaY = velocity*cos(toRadians(-rotate));
+            deltaX = velocity * sin(toRadians(-rotate));
+            deltaY = velocity * cos(toRadians(-rotate));
             super.setRotate(rotate);
             super.setLayoutY(super.getLayoutY() + deltaY);
             super.setLayoutX(super.getLayoutX() + deltaX);
-
         }
-
         public void turnLeft() {
             rotate += 15;
             System.out.println(rotate);
@@ -282,31 +307,30 @@ class Game extends Pane{
         }
         public void goForward() {
             velocity += -.1;
-            if (velocity<-10){
+            if (velocity < -10) {
                 velocity = -10;
             }
             System.out.println(velocity);
-
         }
         public void goBackward() {
             velocity += .1;
-            if (velocity>2){
+            if (velocity > 2) {
                 velocity = 2;
             }
             System.out.println(velocity);
         }
         public void lessGas(){
             gas--;
-            gasLabel.setText(Integer.toString((int)gas));
-
+            gasLabel.setText("F:"+Integer.toString((int)gas));
         }
-
-
-        public void seed() { deltaY += -.1;
-            System.out.println("S");
+        public void spin(double up){
+            rotated = rotated + up;
+            Nose1.setRotate(rotated);
+            Nose2.setRotate(90+rotated);
         }
-
-
+        public void setMobility() {
+            heliMobile = !heliMobile;
+        }
         public void falls() {
             Random random = new Random();
             int rNum = random.nextInt((RainMaker.Width - 25) + 25);
@@ -320,8 +344,6 @@ class Game extends Pane{
             deltaY *= -1;
 
         }
-
-
     }
     class HeliPad extends GameObject{
             private final Circle bubble;
