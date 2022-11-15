@@ -1,6 +1,5 @@
 
         import java.util.Random;
-
         import javafx.animation.AnimationTimer;
         import javafx.application.Application;
         import javafx.scene.Scene;
@@ -137,6 +136,7 @@ class Game extends Pane{
     int  i = 0;
     public void run() {
         i++;
+        Heli.lessGas();
         if(i%60 == 0) {
             Cloud.Increase(-1);
             System.out.println("This is called " + i/60 + " time");
@@ -247,7 +247,8 @@ class Game extends Pane{
         double deltaY = 0;
         int rotate = 0;
 
-
+        double gas = 25000;
+        private final Label gasLabel;
 
         public Heli(int Xcord, int Ycord) {
             super(Xcord, Ycord);
@@ -255,9 +256,12 @@ class Game extends Pane{
             Nose = new Line (0,0,0, RainMaker.Height/12);
             body.setFill(Color.YELLOWGREEN);
             Nose.setStroke(Color.YELLOWGREEN);
-            getChildren().addAll(body,Nose);
+            gasLabel = new Label(Double.toString(gas));
+            getChildren().addAll(body,Nose,gasLabel);
             super.setRotate(rotate);
         }
+
+
 
         public void updateLocation() {
             deltaX = velocity*sin(toRadians(-rotate));
@@ -265,6 +269,7 @@ class Game extends Pane{
             super.setRotate(rotate);
             super.setLayoutY(super.getLayoutY() + deltaY);
             super.setLayoutX(super.getLayoutX() + deltaX);
+
         }
 
         public void turnLeft() {
@@ -289,6 +294,11 @@ class Game extends Pane{
                 velocity = 2;
             }
             System.out.println(velocity);
+        }
+        public void lessGas(){
+            gas--;
+            gasLabel.setText(Integer.toString((int)gas));
+
         }
 
 
