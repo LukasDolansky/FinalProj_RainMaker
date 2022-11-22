@@ -1,21 +1,33 @@
 
-        import java.util.Random;
-        import javafx.animation.AnimationTimer;
-        import javafx.application.Application;
-        import javafx.scene.Scene;
-        import javafx.scene.layout.Pane;
-        import javafx.scene.layout.StackPane;
-        import javafx.scene.paint.Color;
-        import javafx.scene.shape.Line;
-        import javafx.scene.shape.Rectangle;
-        import javafx.scene.shape.Circle;
-        import javafx.stage.Stage;
-        import javafx.scene.control.Label;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Random;
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.media.AudioClip;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
+import javafx.scene.control.Label;
 
-        import static java.lang.Math.*;
+import javax.sound.midi.*;
+
+import static java.lang.Math.*;
 
 
-        public class RainMaker extends Application{
+public class RainMaker extends Application{
 
 
     static Pond Pond;
@@ -35,9 +47,7 @@
 
 
             @Override
-    public void start(final Stage primaryStage) {
-// setting the scene, random numbers, rotate
-
+    public void start(final Stage primaryStage) throws FileNotFoundException {
 
         Random random = new Random();
         int x1 = random.nextInt(5,Width-50);
@@ -55,16 +65,50 @@
         HeliPad HeliPad = new HeliPad((Width/2),Height*5/6);
         Heli Heli = new Heli(Width/2, Height*5/6);
 
+        InputStream stream = new FileInputStream("C:\\Users\\Lukas\\Pictures\\Stats week 4.PNG");
+        Image image = new Image(stream);
+        ImageView imageView = new ImageView();
+        imageView.setImage(image);
+
+                imageView.setX(10);
+                imageView.setY(10);
+                imageView.setFitWidth(575);
+                imageView.setPreserveRatio(true);
+
+                Group root = new Group(imageView);
+
 
         Game Game = new Game(Pond, Cloud, HeliPad, Heli);
 
 
 
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Win");
+                alert.setContentText("You have Won! Play Again?");
+                alert.setHeaderText("Confirmation");
+                ButtonType buttonPlayAgain = new ButtonType("Yes");
+                ButtonType NotPlayAgain = new ButtonType("No");
 
+                alert.getButtonTypes().set(0, buttonPlayAgain);
+                alert.getButtonTypes().set(1, NotPlayAgain);
+                Stage a = (Stage) alert.getDialogPane().getScene().getWindow();
+                a.toFront();
+                alert.setOnCloseRequest(e -> {
+                    ButtonType result = alert.getResult();
+                    if (result != null && result == buttonPlayAgain) {
+                        System.out.println("Play Again!");
+
+                    } else {
+                        a.close();
+                        alert.close();
+                        //stage.close();
+                        System.out.println("Quit!");
+                    }
+                });
 
         canvas = new Pane();
         canvas.setStyle("-fx-background-color: black");
-        final Scene scene = new Scene(canvas, Width, Height);
+        final Scene scene = new Scene(canvas,Width, Height);
 
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
@@ -82,6 +126,7 @@
                     break;
                 case SPACE:
                     Cloud.Increase(1);
+                    Heli.clip();
                     break;
                 case I:
                     ignition = !ignition;
@@ -93,18 +138,20 @@
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        canvas.getChildren().addAll( Pond,Cloud,HeliPad,Heli);
+        canvas.getChildren().addAll(Pond,Cloud,HeliPad,Heli);
+
 
         AnimationTimer loop = new AnimationTimer() {
 
 
             @Override
             public void handle(long now) {
-
                 Heli.updateLocation();
                 Game.run();
+                if (Pond.getReclimationTotal() >= 100){
+                    a.show();
 
-
+                }
 
             }
         };
@@ -135,45 +182,44 @@ class Game extends Pane{
 
 
     }
-
     int  i = 0;
     double rotationSpeed = 0;
     public void run() {
 
 
-
         i++;
-        if(RainMaker.ignition) {
-            if(i%10 == 0 && rotationSpeed <10) {
+        if (RainMaker.ignition) {
+            if (i % 10 == 0 && rotationSpeed < 10) {
                 rotationSpeed = rotationSpeed + .5;
-            }else{
-
+            } else {
+                Heli.setMobility();
             }
 
             Heli.spin(rotationSpeed);
             Heli.lessGas();
 
         }
-        if(!RainMaker.ignition) {
-            if(i%10 == 0 && rotationSpeed >0) {
+        if (!RainMaker.ignition) {
+            if (i % 10 == 0 && rotationSpeed > 0) {
                 rotationSpeed = rotationSpeed - .5;
             }
 
             Heli.spin(rotationSpeed);
-            //Heli.lessGas();
 
         }
-        if(i%60 == 0) {
-        //rotationSpeed--;
+        if (i % 60 == 0) {
 
             Cloud.Increase(-1);
-            System.out.println("This is called " + i/60 + " time");
-            if(Cloud.ReclimationTotal>29){
+            //System.out.println("This is called " + i / 60 + " time");
+            if (Cloud.ReclimationTotal > 29) {
                 Pond.Growth();
             }
         }
+
+
     }
-}
+    }
+
     abstract class GameObject extends StackPane {
 
         public GameObject(int Xcord, int Ycord) {
@@ -239,22 +285,25 @@ class Game extends Pane{
             public void Growth(){
                 ReclimationTotal = ReclimationTotal+1;
                 if (ReclimationTotal>99){
-                    ReclimationTotal = 100;
+                    ReclimationTotal = 99;
                 }
                 total.setText(Double.toString(ReclimationTotal)+"%");
                 WaterBody.setRadius((ReclimationTotal/2)+20);
             }public void Increase(int x){
             ReclimationTotal = ReclimationTotal + x;
             if (ReclimationTotal>99){
-                ReclimationTotal = 100;
+                ReclimationTotal = 99;
             }
             if (ReclimationTotal<1){
-                ReclimationTotal = 0;
+                ReclimationTotal = 1;
             }
             total.setText(Double.toString(ReclimationTotal)+"%");
             int ColorVal = 256- ((int)(ReclimationTotal));
             Color c = Color.rgb(ColorVal,ColorVal,ColorVal);
             WaterBody.setFill(c);
+        }
+        public double getReclimationTotal(){
+                return ReclimationTotal;
         }
 
         }
@@ -268,6 +317,7 @@ class Game extends Pane{
         double deltaY = 0;
         int rotate = 0;
         double rotated = 0;
+        private AudioClip clip;
 
 
         double gas = 25000;
@@ -331,13 +381,22 @@ class Game extends Pane{
         public void setMobility() {
             heliMobile = !heliMobile;
         }
-        public void falls() {
-            Random random = new Random();
-            int rNum = random.nextInt((RainMaker.Width - 25) + 25);
-            super.setLayoutX(rNum);
-            super.setLayoutY(RainMaker.Height / 6);
-            deltaX = 3;
-            deltaY = 3;
+        public AudioClip clip() {
+            clip = null;
+            if(clip == null){
+                //AudioClip src = new AudioClip("C:/Users/Lukas/IdeaProjects/CSC133/HW1/FinalProj_RainMaker/src/lets-take-off.mp3");
+                //src.play();
+                //String src = getClass().getResource("lets-take-off.m4a").toString();
+                AudioClip src = new AudioClip(new File("C:/Users/Lukas/IdeaProjects/CSC133/HW1/FinalProj_RainMaker/src/resources/lets-take-off.mp3").toURI().toString());
+                src.play();
+
+                //System.out.println("yoyoyo");
+
+                System.out.println("src: "+src);
+                clip = src;
+
+            }
+            return clip;
         }
 
         public void Hit() {
