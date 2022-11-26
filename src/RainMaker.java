@@ -34,10 +34,7 @@ public class RainMaker extends Application{
     static Cloud Cloud;
     static HeliPad HeliPad;
     static Heli Heli;
-
     private static Pane canvas;
-
-
     static int Height = 600;
     static int Width = 400;
     public static boolean ignition = false;
@@ -64,6 +61,10 @@ public class RainMaker extends Application{
         Cloud Cloud = new Cloud(x2, y2,(CloudNum / 2) +20,0, Color.WHITE);
         HeliPad HeliPad = new HeliPad((Width/2),Height*5/6);
         Heli Heli = new Heli(Width/2, Height*5/6);
+
+
+
+
 
         InputStream stream = new FileInputStream("C:\\Users\\Lukas\\Pictures\\Stats week 4.PNG");
         Image image = new Image(stream);
@@ -147,6 +148,7 @@ public class RainMaker extends Application{
             @Override
             public void handle(long now) {
                 Heli.updateLocation();
+                Heli.lessGas();
                 Game.run();
                 if (Pond.getReclimationTotal() >= 100){
                     a.show();
@@ -285,17 +287,17 @@ class Game extends Pane{
             public void Growth(){
                 ReclimationTotal = ReclimationTotal+1;
                 if (ReclimationTotal>99){
-                    ReclimationTotal = 99;
+                    ReclimationTotal = 100;
                 }
                 total.setText(Double.toString(ReclimationTotal)+"%");
                 WaterBody.setRadius((ReclimationTotal/2)+20);
             }public void Increase(int x){
             ReclimationTotal = ReclimationTotal + x;
             if (ReclimationTotal>99){
-                ReclimationTotal = 99;
+                ReclimationTotal = 100;
             }
             if (ReclimationTotal<1){
-                ReclimationTotal = 1;
+                ReclimationTotal = 0;
             }
             total.setText(Double.toString(ReclimationTotal)+"%");
             int ColorVal = 256- ((int)(ReclimationTotal));
@@ -307,103 +309,136 @@ class Game extends Pane{
         }
 
         }
-    class Heli extends GameObject {
-        private final Circle body;
-        private final Line Nose1;
-        private final Line Nose2;
-        private boolean heliMobile;
-        double velocity = 0;
-        double deltaX = 0;
-        double deltaY = 0;
-        int rotate = 0;
-        double rotated = 0;
-        private AudioClip clip;
+class Heli extends GameObject {
+    private final Circle body;
+    private final Line Nose1;
+    private final Line Nose2;
+    private boolean heliMobile;
+    double velocity = 0;
+    double deltaX = 0;
+    double deltaY = 0;
+    int rotate = 0;
+    double rotated = 0;
+    private AudioClip clip;
+    double gas = 25000;
+    private final Label gasLabel;
+    int DepletionRate = 0;
+    MobileContext mobileContext = new MobileContext();
 
 
-        double gas = 25000;
-        private final Label gasLabel;
+    public Heli(int Xcord, int Ycord) {
+        super(Xcord, Ycord);
+        body = new Circle(Xcord, Ycord, RainMaker.Height / 48);
+        Nose1 = new Line(0, 0, 0, RainMaker.Height / 12);
+        Nose2 = new Line(0, 0, 0, RainMaker.Height / 12);
 
-        public Heli(int Xcord, int Ycord) {
-            super(Xcord, Ycord);
-            body = new Circle(Xcord, Ycord, RainMaker.Height / 48);
-            Nose1 = new Line(0, 0, 0, RainMaker.Height / 12);
-            Nose2 = new Line(0, 0, 0, RainMaker.Height / 12);
+        body.setFill(Color.YELLOWGREEN);
+        Nose1.setStroke(Color.CRIMSON);
+        Nose2.setStroke(Color.CRIMSON);
 
-            body.setFill(Color.YELLOWGREEN);
-            Nose1.setStroke(Color.CRIMSON);
-            Nose2.setStroke(Color.CRIMSON);
-
-            gasLabel = new Label("F:" + Double.toString(gas));
-            getChildren().addAll(body, Nose1, Nose2, gasLabel);
-            super.setRotate(rotate);
-            Nose2.setRotate(90);
-        }
-
-
-        public void updateLocation() {
-            deltaX = velocity * sin(toRadians(-rotate));
-            deltaY = velocity * cos(toRadians(-rotate));
-            super.setRotate(rotate);
-            super.setLayoutY(super.getLayoutY() + deltaY);
-            super.setLayoutX(super.getLayoutX() + deltaX);
-        }
-        public void turnLeft() {
-            rotate += 15;
-            System.out.println(rotate);
-        }
-        public void turnRight() {
-            rotate += -15;
-            System.out.println(rotate);
-        }
-        public void goForward() {
-            velocity += -.1;
-            if (velocity < -10) {
-                velocity = -10;
-            }
-            System.out.println(velocity);
-        }
-        public void goBackward() {
-            velocity += .1;
-            if (velocity > 2) {
-                velocity = 2;
-            }
-            System.out.println(velocity);
-        }
-        public void lessGas(){
-            gas--;
-            gasLabel.setText("F:"+Integer.toString((int)gas));
-        }
-        public void spin(double up){
-            rotated = rotated + up;
-            Nose1.setRotate(rotated);
-            Nose2.setRotate(90+rotated);
-        }
-        public void setMobility() {
-            heliMobile = !heliMobile;
-        }
-        public AudioClip clip() {
-            clip = null;
-            if(clip == null){
-                //AudioClip src = new AudioClip("C:/Users/Lukas/IdeaProjects/CSC133/HW1/FinalProj_RainMaker/src/lets-take-off.mp3");
-                //src.play();
-                //String src = getClass().getResource("lets-take-off.m4a").toString();
-                AudioClip src = new AudioClip(new File("C:/Users/Lukas/IdeaProjects/CSC133/HW1/FinalProj_RainMaker/src/resources/lets-take-off.mp3").toURI().toString());
-                src.play();
-
-                //System.out.println("yoyoyo");
-
-                System.out.println("src: "+src);
-                clip = src;
-
-            }
-            return clip;
-        }
-
-        public void Hit() {
-            deltaY *= -1;
-
-        }
+        gasLabel = new Label("F:" + Double.toString(gas));
+        getChildren().addAll(body, Nose1, Nose2, gasLabel);
+        super.setRotate(rotate);
+        Nose2.setRotate(90);
     }
+    public void updateLocation() {
+        deltaX = velocity * sin(toRadians(-rotate));
+        deltaY = velocity * cos(toRadians(-rotate));
+        super.setRotate(rotate);
+        super.setLayoutY(super.getLayoutY() + deltaY);
+        super.setLayoutX(super.getLayoutX() + deltaX);
+    }
+    public void turnLeft() {
+        rotate += 15;
+        System.out.println(rotate);
+    }
+    public void turnRight() {
+        rotate += -15;
+        System.out.println(rotate);
+    }
+    public void goForward() {
+        velocity += -.1;
+        if (velocity < -10) {
+            velocity = -10;
+        }
+        System.out.println(velocity);
+        mobileContext.alert();
+    }
+    public void goBackward() {
+        velocity += .1;
+        if (velocity > 2) {
+            velocity = 2;
+        }
+        System.out.println(velocity);
+    }
+    public void lessGas(){
+        gas = gas - DepletionRate;
+        gasLabel.setText("F:"+Integer.toString((int)gas));
+    }
+    public void spin(double up){
+        rotated = rotated + up;
+        Nose1.setRotate(rotated);
+        Nose2.setRotate(90+rotated);
+    }
+    public void setMobility() {
+        heliMobile = !heliMobile;
+    }
+    public AudioClip clip() {
+        if(clip == null){
+
+            AudioClip src = new AudioClip(new File("C:/Users/Lukas/IdeaProjects/CSC133/HW1/FinalProj_RainMaker/src/resources/lets-take-off.mp3").toURI().toString());
+            src.play();
+            System.out.println("src: "+src);
+            clip = src;
+
+        }
+        return clip;
+    }
+    public void setDepletionRate(int updatedRate){
+        DepletionRate = updatedRate;
+    }
+
+}
+
+
+
+
+
+interface HeliState {
+    public void alert();
+}
+class MobileContext {
+    private HeliState currentState= new Ringing();
+    public void MobileContext() {
+        currentState = new Ringing();
+    }
+    public void setState(HeliState state) {
+        currentState = state;
+    }
+    public void alert() {
+        currentState.alert();
+    }
+}
+class Ringing implements HeliState {
+    public void alert() {
+        System.out.println("Mobile is ringing");
+    }
+}
+
+class Starting {
+}
+
+class Stopping {
+}
+
+class Ready {
+}
+
+
+
+
+
+
     class HeliPad extends GameObject{
             private final Circle bubble;
             private final Rectangle Square;
