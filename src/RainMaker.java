@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +11,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
@@ -22,8 +22,6 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
-import javax.sound.midi.*;
-
 import static java.lang.Math.*;
 
 
@@ -33,7 +31,7 @@ public class RainMaker extends Application{
     static Pond Pond;
     static Cloud Cloud;
     static HeliPad HeliPad;
-    static Heli Heli;
+    static Helo Helo;
     private static Pane canvas;
     static int Height = 600;
     static int Width = 400;
@@ -60,7 +58,7 @@ public class RainMaker extends Application{
         Pond Pond = new Pond(x1, y1,(PondNum / 2) +20,PondNum, Color.BLUE);
         Cloud Cloud = new Cloud(x2, y2,(CloudNum / 2) +20,0, Color.WHITE);
         HeliPad HeliPad = new HeliPad((Width/2),Height*5/6);
-        Heli Heli = new Heli(Width/2, Height*5/6);
+        Helo Helo = new Helo(Width/2, Height*5/6);
 
 
 
@@ -79,7 +77,7 @@ public class RainMaker extends Application{
                 Group root = new Group(imageView);
 
 
-        Game Game = new Game(Pond, Cloud, HeliPad, Heli);
+        Game Game = new Game(Pond, Cloud, HeliPad,Helo);
 
 
 
@@ -113,24 +111,24 @@ public class RainMaker extends Application{
 
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
-                case A:
-                    Heli.turnRight();
+                case LEFT:
+                    Helo.steer(-1);
                     break;
-                case D:
-                    Heli.turnLeft();
+                case RIGHT:
+                    Helo.steer(1);
                     break;
-                case W:
-                    Heli.goForward();
+                case UP:
+                    Helo.goForward();
                     break;
-                case S:
-                    Heli.goBackward();
+                case DOWN:
+                    Helo.goBackward();
                     break;
                 case SPACE:
                     Cloud.Increase(1);
-                    Heli.clip();
+                    Helo.clip();
                     break;
                 case I:
-                    ignition = !ignition;
+                    Helo.ignition = !Helo.ignition;
                     break;
             }
         });
@@ -139,7 +137,7 @@ public class RainMaker extends Application{
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        canvas.getChildren().addAll(Pond,Cloud,HeliPad,Heli);
+        canvas.getChildren().addAll(Pond,Cloud,HeliPad,Helo);
 
 
         AnimationTimer loop = new AnimationTimer() {
@@ -147,8 +145,8 @@ public class RainMaker extends Application{
 
             @Override
             public void handle(long now) {
-                Heli.updateLocation();
-                Heli.lessGas();
+                Helo.updateLocation();
+                Helo.lessGas();
                 Game.run();
                 if (Pond.getReclimationTotal() >= 100){
                     a.show();
@@ -173,14 +171,14 @@ class Game extends Pane{
     private Pond Pond;
     private Cloud Cloud;
     private HeliPad HeliPad;
-    private Heli Heli;
+    private Helo Helo;
 
 
-    public Game(Pond Pond, Cloud Cloud,HeliPad HeliPad,Heli Heli) {
+    public Game(Pond Pond, Cloud Cloud,HeliPad HeliPad,Helo Helo) {
         this.Pond = Pond;
         this.Cloud = Cloud;
         this.HeliPad = HeliPad;
-        this.Heli = Heli;
+        this.Helo = Helo;
 
 
     }
@@ -190,23 +188,23 @@ class Game extends Pane{
 
 
         i++;
-        if (RainMaker.ignition) {
+        if (Helo.getIgnition()) {
             if (i % 10 == 0 && rotationSpeed < 10) {
                 rotationSpeed = rotationSpeed + .5;
             } else {
-                Heli.setMobility();
+                Helo.setMobility();
             }
 
-            Heli.spin(rotationSpeed);
-            Heli.lessGas();
+            Helo.spin();
+            Helo.lessGas();
 
         }
-        if (!RainMaker.ignition) {
+        if (!Helo.getIgnition()) {
             if (i % 10 == 0 && rotationSpeed > 0) {
                 rotationSpeed = rotationSpeed - .5;
             }
 
-            Heli.spin(rotationSpeed);
+            Helo.spin();
 
         }
         if (i % 60 == 0) {
@@ -309,7 +307,10 @@ class Game extends Pane{
         }
 
         }
-class Heli extends GameObject {
+
+
+
+    abstract class Heli extends GameObject {
     private final Circle body;
     private final Line Nose1;
     private final Line Nose2;
@@ -317,122 +318,216 @@ class Heli extends GameObject {
     double velocity = 0;
     double deltaX = 0;
     double deltaY = 0;
-    int rotate = 0;
-    double rotated = 0;
+    int rotate = 10;
+    double rotated = 1;
     private AudioClip clip;
     double gas = 25000;
     private final Label gasLabel;
-    int DepletionRate = 0;
-    MobileContext mobileContext = new MobileContext();
-
-
+    double DepletionRate;
+    boolean ignition = false;
+    public HeliState state;
     public Heli(int Xcord, int Ycord) {
+
+            super(Xcord, Ycord);
+            body = new Circle(Xcord, Ycord, RainMaker.Height / 48);
+            Nose1 = new Line(0, 0, 0, RainMaker.Height / 12);
+            Nose2 = new Line(0, 0, 0, RainMaker.Height / 12);
+
+            body.setFill(Color.YELLOWGREEN);
+            Nose1.setStroke(Color.CRIMSON);
+            Nose2.setStroke(Color.CRIMSON);
+
+            gasLabel = new Label("F:" + Double.toString(gas));
+            getChildren().addAll(body, Nose1, Nose2, gasLabel);
+            super.setRotate(rotate);
+            Nose2.setRotate(90);
+        }
+
+
+
+
+
+
+
+
+        abstract static class HeliState {
+            //abstract void startOrStopEngine();
+            void spin(){}
+            void lessGas(){}
+            void steer(int val){}
+            void goForward(){}
+            void goBackward(){}
+            public boolean checkLand(int x, int y){
+                return false;
+            }
+            public abstract void updateLocalTransforms();
+        }
+
+
+
+        class Off extends HeliState {
+
+
+            public void updateLocalTransforms() {
+                deltaX = velocity * sin(toRadians(-rotate));
+                deltaY = velocity * cos(toRadians(-rotate));
+
+            }
+
+        }
+        class Ready extends HeliState {
+
+            void steer(int val) {
+                rotate += val * 15;
+                System.out.println(rotate);
+            }
+            public void spin(){
+                rotated = rotated + 5;
+                Nose1.setRotate(rotated);
+                Nose2.setRotate(90+rotated);
+            }
+            public void lessGas(){
+                DepletionRate= 1;
+                gas = gas - DepletionRate;
+                gasLabel.setText("F:"+Integer.toString((int)gas));
+            }
+            public void goForward() {
+                velocity += -.1;
+                if (velocity < -10) {
+                    velocity = -10;
+                }
+                System.out.println(velocity);
+                //HeliManipulator.alert();
+            }
+            public void goBackward() {
+                velocity += .1;
+                if (velocity > 2) {
+                    velocity = 2;
+                }
+                System.out.println(velocity);
+            }
+            public void updateLocalTransforms() {
+                deltaX = velocity * sin(toRadians(-rotate));
+                deltaY = velocity * cos(toRadians(-rotate));
+                Nose1.setRotate(rotated);
+                Nose2.setRotate(90+rotated);
+            }
+
+        }
+        class Starting extends HeliState {
+            public void spins(){
+                rotated = rotated + 5;
+                Nose1.setRotate(rotated);
+                Nose2.setRotate(90+rotated);
+            }
+            public void spin(){
+
+                if (rotated < 5000){
+                    rotated = rotated + rotated*.02;
+                } else {
+                    System.out.println("Entry");
+                    state = new Ready();
+                    System.out.println("Success?");
+
+                }
+                Nose1.setRotate(rotated);
+                Nose2.setRotate(90+rotated);
+            }
+            public void lessGas(){
+                DepletionRate= .5;
+                gas = gas - DepletionRate;
+                gasLabel.setText("F:"+Integer.toString((int)gas));
+            }
+            public void updateLocalTransforms() {
+                deltaX = velocity * sin(toRadians(-rotate));
+                deltaY = velocity * cos(toRadians(-rotate));
+            }
+
+        }
+        class Stopping extends HeliState {
+            void spinBlades(){
+                if (rotated < 0){
+                    rotated -= .25;
+                } else {
+                    state = new Off();
+                }
+            }
+            public void updateLocalTransforms() {}
+
+        }
+
+
+
+
+
+        public void setMobility() {
+            heliMobile = !heliMobile;
+        }
+        public AudioClip clip() {
+            if(clip == null){
+
+                AudioClip src = new AudioClip(new File("C:/Users/Lukas/IdeaProjects/CSC133/HW1/FinalProj_RainMaker/src/resources/lets-take-off.mp3").toURI().toString());
+                src.play();
+                System.out.println("src: "+src);
+                clip = src;
+
+            }
+            return clip;
+        }
+        }
+
+
+
+
+
+
+
+        class Helo extends Heli{
+            HeliState state = new Ready();
+
+            public Helo(int Xcord, int Ycord) {
+
         super(Xcord, Ycord);
-        body = new Circle(Xcord, Ycord, RainMaker.Height / 48);
-        Nose1 = new Line(0, 0, 0, RainMaker.Height / 12);
-        Nose2 = new Line(0, 0, 0, RainMaker.Height / 12);
-
-        body.setFill(Color.YELLOWGREEN);
-        Nose1.setStroke(Color.CRIMSON);
-        Nose2.setStroke(Color.CRIMSON);
-
-        gasLabel = new Label("F:" + Double.toString(gas));
-        getChildren().addAll(body, Nose1, Nose2, gasLabel);
-        super.setRotate(rotate);
-        Nose2.setRotate(90);
-    }
-    public void updateLocation() {
-        deltaX = velocity * sin(toRadians(-rotate));
-        deltaY = velocity * cos(toRadians(-rotate));
-        super.setRotate(rotate);
-        super.setLayoutY(super.getLayoutY() + deltaY);
-        super.setLayoutX(super.getLayoutX() + deltaX);
-    }
-    public void turnLeft() {
-        rotate += 15;
-        System.out.println(rotate);
-    }
-    public void turnRight() {
-        rotate += -15;
-        System.out.println(rotate);
-    }
-    public void goForward() {
-        velocity += -.1;
-        if (velocity < -10) {
-            velocity = -10;
-        }
-        System.out.println(velocity);
-        mobileContext.alert();
-    }
-    public void goBackward() {
-        velocity += .1;
-        if (velocity > 2) {
-            velocity = 2;
-        }
-        System.out.println(velocity);
-    }
-    public void lessGas(){
-        gas = gas - DepletionRate;
-        gasLabel.setText("F:"+Integer.toString((int)gas));
-    }
-    public void spin(double up){
-        rotated = rotated + up;
-        Nose1.setRotate(rotated);
-        Nose2.setRotate(90+rotated);
-    }
-    public void setMobility() {
-        heliMobile = !heliMobile;
-    }
-    public AudioClip clip() {
-        if(clip == null){
-
-            AudioClip src = new AudioClip(new File("C:/Users/Lukas/IdeaProjects/CSC133/HW1/FinalProj_RainMaker/src/resources/lets-take-off.mp3").toURI().toString());
-            src.play();
-            System.out.println("src: "+src);
-            clip = src;
 
         }
-        return clip;
-    }
-    public void setDepletionRate(int updatedRate){
-        DepletionRate = updatedRate;
-    }
 
-}
+            public void steer(int val){
+        state.steer(val);
+            }
+            public void lessGas(){
+                state.lessGas();
+            }
+            public void spin(){
+                state.spin();
+            }
+            public void goBackward() {
+                state.goBackward();
+            }
+            public void goForward() {
+                state.goForward();
+            }
+            public boolean getIgnition() {
+                return ignition;
+            }
+            public void updateLocation() {
+
+                state.updateLocalTransforms();
+                state.spin();
+                super.setRotate(rotate);
+                super.setLayoutY(super.getLayoutY() + deltaY);
+                super.setLayoutX(super.getLayoutX() + deltaX);
+            }
+
+        }
 
 
 
 
 
-interface HeliState {
-    public void alert();
-}
-class MobileContext {
-    private HeliState currentState= new Ringing();
-    public void MobileContext() {
-        currentState = new Ringing();
-    }
-    public void setState(HeliState state) {
-        currentState = state;
-    }
-    public void alert() {
-        currentState.alert();
-    }
-}
-class Ringing implements HeliState {
-    public void alert() {
-        System.out.println("Mobile is ringing");
-    }
-}
 
-class Starting {
-}
 
-class Stopping {
-}
 
-class Ready {
-}
+
 
 
 
