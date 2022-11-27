@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
 import static java.lang.Math.*;
+import static javafx.scene.paint.Color.TRANSPARENT;
 import static javafx.scene.paint.Color.WHITE;
 
 
@@ -39,6 +40,7 @@ public class RainMaker extends Application {
     static int Width = 400;
     static int WIND_SPEED = 1;
     static int WIND_DIRECTION = 45;
+    public Color color = Color.TRANSPARENT;
 
 
     @Override
@@ -57,7 +59,7 @@ public class RainMaker extends Application {
         Cloud Cloud = new Cloud(x2, y2, (CloudNum / 2) + 20, 0, Color.WHITE);
         Line line = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond.getCenterX(), Pond.getCenterY());
 
-        line.setStroke(WHITE);
+        line.setStroke(color);
 
         HeliPad HeliPad = new HeliPad((Width / 2), Height * 5 / 6);
         Helo Helo = new Helo(Width / 2, Height * 5 / 6);
@@ -129,7 +131,12 @@ public class RainMaker extends Application {
                     Helo.ignition = !Helo.ignition;
                     break;
                 case D:
-                    //;
+                    if(line.getStroke() == TRANSPARENT){
+                        line.setStroke(WHITE);
+
+                    }else{
+                        line.setStroke(TRANSPARENT);
+                    }
                     break;
             }
         });
