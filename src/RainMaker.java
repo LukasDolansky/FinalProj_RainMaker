@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javafx.animation.AnimationTimer;
@@ -31,7 +32,9 @@ import static javafx.scene.paint.Color.WHITE;
 public class RainMaker extends Application {
 
 
-    static Pond Pond;
+    static Pond Pond1;
+    static Pond Pond2;
+    static Pond Pond3;
     static Cloud Cloud;
     static HeliPad HeliPad;
     static Helo Helo;
@@ -39,25 +42,43 @@ public class RainMaker extends Application {
     static int Height = 600;
     static int Width = 400;
     static int WIND_SPEED = 1;
-    static int WIND_DIRECTION = 45;
+    static int WIND_DIRECTION = 105;
     public Color color = Color.TRANSPARENT;
 
 
     @Override
     public void start(final Stage primaryStage) throws FileNotFoundException {
-        Random random = new Random();
-        int x1 = random.nextInt(5, Width - 50);
-        int y1 = random.nextInt(0, Height / 3);
-        int x2 = random.nextInt(5, Width - 50);
-        int y2 = random.nextInt(0, Height / 3);
-        double PondNum = random.nextInt(20, 50);
-        double CloudNum = random.nextInt(20, 50);
+
+        ArrayList<Cloud> Clouds = new ArrayList<Cloud>();
+
+        //for (int i = 0; i<1;i++){
+            //Random random = new Random();
+           // int x1 = random.nextInt(5, Width - 50);
+         //   int y1 = random.nextInt(0, Height / 3);
+       //     double PondNum = random.nextInt(20, 50);
+     //       double CloudNum = random.nextInt(20, 50);
+   //         Cloud Cloud = new Cloud(x2, y2, (CloudNum / 2) + 20, 0, Color.WHITE);
+ //       }
+
+
+        //Random random = new Random();
+        int[][] XnYvalues = new int [3][8];
+        for(int j = 0; j<8; j++){
+            Random random = new Random();
+            XnYvalues [0][j] = random.nextInt(5, Width - 5);
+            XnYvalues [1][j] = random.nextInt(0, 5*Height / 6);
+            XnYvalues [2][j] = random.nextInt(20, 50);
+        }
+
+
 
 
         //creating the Pond
-        Pond Pond = new Pond(x1, y1, (PondNum / 2) + 20, PondNum, Color.BLUE);
-        Cloud Cloud = new Cloud(x2, y2, (CloudNum / 2) + 20, 0, Color.WHITE);
-        Line line = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond.getCenterX(), Pond.getCenterY());
+        Pond Pond1 = new Pond(XnYvalues[0][0], XnYvalues[1][0], XnYvalues[2][0] , XnYvalues[2][0], Color.BLUE);
+        Cloud Cloud = new Cloud(XnYvalues[0][1], XnYvalues[1][1], XnYvalues[2][1], 0, Color.WHITE);
+        Pond Pond2 = new Pond(XnYvalues[0][2], XnYvalues[1][2], XnYvalues[2][2] , XnYvalues[2][2], Color.BLUE);
+        Pond Pond3 = new Pond(XnYvalues[0][3], XnYvalues[1][3], XnYvalues[2][3] , XnYvalues[2][3], Color.BLUE);
+        Line line = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
 
         line.setStroke(color);
 
@@ -78,7 +99,7 @@ public class RainMaker extends Application {
         Group root = new Group(imageView);
 
 
-        Game Game = new Game(Pond, Cloud, HeliPad, Helo);
+        Game Game = new Game(Pond1,Pond2,Pond3, Cloud, HeliPad, Helo);
 
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -145,7 +166,7 @@ public class RainMaker extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        canvas.getChildren().addAll(Pond, Cloud, HeliPad, Helo, line);
+        canvas.getChildren().addAll(Pond1,Pond2,Pond3, Cloud, HeliPad, Helo, line);
 
 
         AnimationTimer loop = new AnimationTimer() {
@@ -159,7 +180,7 @@ public class RainMaker extends Application {
                 Helo.updateLocation();
                 Helo.lessGas();
                 Game.run();
-                if (Pond.getReclimationTotal() >= 100) {
+                if (Pond1.getReclimationTotal() >= 100) {
                     a.show();
 
                 }
@@ -180,14 +201,19 @@ public class RainMaker extends Application {
 
 class Game extends Pane {
 
-    private Pond Pond;
+    private Pond Pond1;
+    private Pond Pond2;
+    private Pond Pond3;
+
     private Cloud Cloud;
     private HeliPad HeliPad;
     private Helo Helo;
 
 
-    public Game(Pond Pond, Cloud Cloud, HeliPad HeliPad, Helo Helo) {
-        this.Pond = Pond;
+    public Game(Pond Pond1, Pond Pond2,Pond Pond3,Cloud Cloud, HeliPad HeliPad, Helo Helo) {
+        this.Pond1 = Pond1;
+        this.Pond2 = Pond2;
+        this.Pond3 = Pond3;
         this.Cloud = Cloud;
         this.HeliPad = HeliPad;
         this.Helo = Helo;
@@ -226,7 +252,9 @@ class Game extends Pane {
             Cloud.Increase(-1);
             //System.out.println("This is called " + i / 60 + " time");
             if (Cloud.ReclimationTotal > 29) {
-                Pond.Growth();
+                Pond1.Growth();
+                Pond2.Growth();
+                Pond3.Growth();
             }
         }
 
@@ -283,6 +311,15 @@ class Cloud extends Cloud_Pond {
         deltaY = RainMaker.WIND_SPEED * cos(toRadians(-RainMaker.WIND_DIRECTION));
         super.setLayoutY(super.getLayoutY() + deltaY);
         super.setLayoutX(super.getLayoutX() + deltaX);
+        if(super.getLayoutX()<-50|| super.getLayoutX()> RainMaker.Width+50||super.getLayoutY()<-50|| super.getLayoutY()> RainMaker.Height+50){
+            System.out.println(super.getLayoutX()+super.getLayoutY());
+        super.setLayoutX(super.getLayoutX()+ -deltaX* (RainMaker.Height+50));
+        super.setLayoutY(super.getLayoutY()+ -deltaY* (RainMaker.Width+50));
+        if(Math.abs(super.getLayoutX()+super.getLayoutY())>1200){
+            super.setLayoutX(RainMaker.Width/2 + -deltaX*RainMaker.Width/2);
+            super.setLayoutY(RainMaker.Height/2+ -deltaY*RainMaker.Height/2);
+        }
+        }
     }
 }
 
@@ -296,7 +333,7 @@ class Cloud_Pond extends GameObject {
 
     public Cloud_Pond(int Xcord, int Ycord, double size, Double percent
             , Color Color) {
-        super(Xcord, Ycord);
+        super((Xcord/ 2) + 20,( Ycord/ 2) + 20);
 
         this.size = size;
         WaterBody = new Circle(Xcord, Ycord, size);
