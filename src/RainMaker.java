@@ -75,16 +75,53 @@ public class RainMaker extends Application {
 
         //creating the Pond
         Pond Pond1 = new Pond(XnYvalues[0][0], XnYvalues[1][0], XnYvalues[2][0] , XnYvalues[2][0], Color.BLUE);
-        Cloud Cloud = new Cloud(XnYvalues[0][1], XnYvalues[1][1], XnYvalues[2][1], 0, Color.WHITE);
         Pond Pond2 = new Pond(XnYvalues[0][2], XnYvalues[1][2], XnYvalues[2][2] , XnYvalues[2][2], Color.BLUE);
         Pond Pond3 = new Pond(XnYvalues[0][3], XnYvalues[1][3], XnYvalues[2][3] , XnYvalues[2][3], Color.BLUE);
-        Line line11 = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
-        Line line12 = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
-        Line line13 = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+        Cloud Cloud1 = new Cloud(XnYvalues[0][1], XnYvalues[1][1], XnYvalues[2][1], 0, Color.WHITE);
+        Cloud Cloud2 = new Cloud(XnYvalues[0][4], XnYvalues[1][4], XnYvalues[2][4], 0, Color.WHITE);
+        Cloud Cloud3 = new Cloud(XnYvalues[0][5], XnYvalues[1][5], XnYvalues[2][5], 0, Color.WHITE);
+        Cloud Cloud4 = new Cloud(XnYvalues[0][6], XnYvalues[1][6], XnYvalues[2][6], 0, Color.WHITE);
+        Cloud Cloud5 = new Cloud(XnYvalues[0][7], XnYvalues[1][7], XnYvalues[2][7], 0, Color.WHITE);
+
+        Line line11 = new Line(Cloud1.getCenterX(), Cloud1.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line12 = new Line(Cloud1.getCenterX(), Cloud1.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line13 = new Line(Cloud1.getCenterX(), Cloud1.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        Line line21 = new Line(Cloud2.getCenterX(), Cloud2.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line22 = new Line(Cloud2.getCenterX(), Cloud2.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line23 = new Line(Cloud2.getCenterX(), Cloud2.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        Line line31 = new Line(Cloud3.getCenterX(), Cloud3.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line32 = new Line(Cloud3.getCenterX(), Cloud3.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line33 = new Line(Cloud3.getCenterX(), Cloud3.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        Line line41 = new Line(Cloud4.getCenterX(), Cloud4.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line42 = new Line(Cloud4.getCenterX(), Cloud4.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line43 = new Line(Cloud4.getCenterX(), Cloud4.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        Line line51 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line52 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line53 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
 
         line11.setStroke(color);
         line12.setStroke(color);
         line13.setStroke(color);
+
+        line21.setStroke(color);
+        line22.setStroke(color);
+        line23.setStroke(color);
+
+        line31.setStroke(color);
+        line32.setStroke(color);
+        line33.setStroke(color);
+
+        line41.setStroke(color);
+        line42.setStroke(color);
+        line43.setStroke(color);
+
+        line51.setStroke(color);
+        line52.setStroke(color);
+        line53.setStroke(color);
 
         HeliPad HeliPad = new HeliPad((Width / 2), Height * 5 / 6);
         Helo Helo = new Helo(Width / 2, Height * 5 / 6);
@@ -103,7 +140,7 @@ public class RainMaker extends Application {
         Group root = new Group(imageView);
 
 
-        Game Game = new Game(Pond1,Pond2,Pond3, Cloud, HeliPad, Helo);
+        Game Game = new Game(Pond1,Pond2,Pond3, Cloud1,Cloud2,Cloud3,Cloud4,Cloud5, HeliPad, Helo);
 
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -161,10 +198,42 @@ public class RainMaker extends Application {
                         line12.setStroke(WHITE);
                         line13.setStroke(WHITE);
 
+                        line21.setStroke(WHITE);
+                        line22.setStroke(WHITE);
+                        line23.setStroke(WHITE);
+
+                        line31.setStroke(WHITE);
+                        line32.setStroke(WHITE);
+                        line33.setStroke(WHITE);
+
+                        line41.setStroke(WHITE);
+                        line42.setStroke(WHITE);
+                        line43.setStroke(WHITE);
+
+                        line51.setStroke(WHITE);
+                        line52.setStroke(WHITE);
+                        line53.setStroke(WHITE);
+
                     }else{
                         line11.setStroke(TRANSPARENT);
                         line12.setStroke(TRANSPARENT);
                         line13.setStroke(TRANSPARENT);
+
+                        line21.setStroke(TRANSPARENT);
+                        line22.setStroke(TRANSPARENT);
+                        line23.setStroke(TRANSPARENT);
+
+                        line31.setStroke(TRANSPARENT);
+                        line32.setStroke(TRANSPARENT);
+                        line33.setStroke(TRANSPARENT);
+
+                        line41.setStroke(TRANSPARENT);
+                        line42.setStroke(TRANSPARENT);
+                        line43.setStroke(TRANSPARENT);
+
+                        line51.setStroke(TRANSPARENT);
+                        line52.setStroke(TRANSPARENT);
+                        line53.setStroke(TRANSPARENT);
                     }
                     break;
             }
@@ -174,7 +243,13 @@ public class RainMaker extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        canvas.getChildren().addAll(Pond1,Pond2,Pond3, Cloud, HeliPad, Helo, line11,line12,line13);
+        canvas.getChildren().addAll(Pond1,Pond2,Pond3, Cloud1,
+                Cloud2,Cloud3,Cloud4,Cloud5,HeliPad, Helo,
+                line11,line12,line13,
+                line21,line22,line23,
+                line31,line32,line33,
+                line41,line42,line43,
+                line51,line52,line53);
 
 
         AnimationTimer loop = new AnimationTimer() {
@@ -182,13 +257,48 @@ public class RainMaker extends Application {
 
             @Override
             public void handle(long now) {
-                line11.setStartX(Cloud.getCenterX());
-                line11.setStartY(Cloud.getCenterY());
-                line12.setStartX(Cloud.getCenterX());
-                line12.setStartY(Cloud.getCenterY());
-                line13.setStartX(Cloud.getCenterX());
-                line13.setStartY(Cloud.getCenterY());
-                Cloud.updateLocation();
+                line11.setStartX(Cloud1.getCenterX());
+                line11.setStartY(Cloud1.getCenterY());
+                line12.setStartX(Cloud1.getCenterX());
+                line12.setStartY(Cloud1.getCenterY());
+                line13.setStartX(Cloud1.getCenterX());
+                line13.setStartY(Cloud1.getCenterY());
+
+                line21.setStartX(Cloud2.getCenterX());
+                line21.setStartY(Cloud2.getCenterY());
+                line22.setStartX(Cloud2.getCenterX());
+                line22.setStartY(Cloud2.getCenterY());
+                line23.setStartX(Cloud2.getCenterX());
+                line23.setStartY(Cloud2.getCenterY());
+
+                line31.setStartX(Cloud3.getCenterX());
+                line31.setStartY(Cloud3.getCenterY());
+                line32.setStartX(Cloud3.getCenterX());
+                line32.setStartY(Cloud3.getCenterY());
+                line33.setStartX(Cloud3.getCenterX());
+                line33.setStartY(Cloud3.getCenterY());
+
+                line41.setStartX(Cloud4.getCenterX());
+                line41.setStartY(Cloud4.getCenterY());
+                line42.setStartX(Cloud4.getCenterX());
+                line42.setStartY(Cloud4.getCenterY());
+                line43.setStartX(Cloud4.getCenterX());
+                line43.setStartY(Cloud4.getCenterY());
+
+                line51.setStartX(Cloud5.getCenterX());
+                line51.setStartY(Cloud5.getCenterY());
+                line52.setStartX(Cloud5.getCenterX());
+                line52.setStartY(Cloud5.getCenterY());
+                line53.setStartX(Cloud5.getCenterX());
+                line53.setStartY(Cloud5.getCenterY());
+
+
+
+                Cloud1.updateLocation();
+                Cloud2.updateLocation();
+                Cloud3.updateLocation();
+                Cloud4.updateLocation();
+                Cloud5.updateLocation();
                 Helo.updateLocation();
                 Helo.lessGas();
                 Game.run();
@@ -217,16 +327,25 @@ class Game extends Pane {
     private Pond Pond2;
     private Pond Pond3;
 
-    private Cloud Cloud;
+    private Cloud Cloud1;
+    private Cloud Cloud2;
+    private Cloud Cloud3;
+    private Cloud Cloud4;
+    private Cloud Cloud5;
     private HeliPad HeliPad;
     private Helo Helo;
 
 
-    public Game(Pond Pond1, Pond Pond2,Pond Pond3,Cloud Cloud, HeliPad HeliPad, Helo Helo) {
+    public Game(Pond Pond1, Pond Pond2,Pond Pond3,Cloud Cloud1,
+                Cloud Cloud2,Cloud Cloud3,Cloud Cloud4,Cloud Cloud5,HeliPad HeliPad, Helo Helo) {
         this.Pond1 = Pond1;
         this.Pond2 = Pond2;
         this.Pond3 = Pond3;
-        this.Cloud = Cloud;
+        this.Cloud1 = Cloud1;
+        this.Cloud2 = Cloud2;
+        this.Cloud3 = Cloud3;
+        this.Cloud4 = Cloud4;
+        this.Cloud5 = Cloud5;
         this.HeliPad = HeliPad;
         this.Helo = Helo;
 
@@ -261,9 +380,9 @@ class Game extends Pane {
         }
         if (i % 60 == 0) {
 
-            Cloud.Increase(-1);
+            Cloud1.Increase(-1);
             //System.out.println("This is called " + i / 60 + " time");
-            if (Cloud.ReclimationTotal > 29) {
+            if (Cloud1.ReclimationTotal > 29) {
                 Pond1.Growth();
                 Pond2.Growth();
                 Pond3.Growth();
