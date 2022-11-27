@@ -41,7 +41,7 @@ public class RainMaker extends Application {
     private static Pane canvas;
     static int Height = 600;
     static int Width = 400;
-    static int WIND_SPEED = 2;
+    static int WIND_SPEED = 1;
     static int WIND_DIRECTION = 105;
     public Color color = Color.TRANSPARENT;
 
@@ -78,9 +78,13 @@ public class RainMaker extends Application {
         Cloud Cloud = new Cloud(XnYvalues[0][1], XnYvalues[1][1], XnYvalues[2][1], 0, Color.WHITE);
         Pond Pond2 = new Pond(XnYvalues[0][2], XnYvalues[1][2], XnYvalues[2][2] , XnYvalues[2][2], Color.BLUE);
         Pond Pond3 = new Pond(XnYvalues[0][3], XnYvalues[1][3], XnYvalues[2][3] , XnYvalues[2][3], Color.BLUE);
-        Line line = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line11 = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line12 = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line13 = new Line(Cloud.getCenterX(), Cloud.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
 
-        line.setStroke(color);
+        line11.setStroke(color);
+        line12.setStroke(color);
+        line13.setStroke(color);
 
         HeliPad HeliPad = new HeliPad((Width / 2), Height * 5 / 6);
         Helo Helo = new Helo(Width / 2, Height * 5 / 6);
@@ -152,11 +156,15 @@ public class RainMaker extends Application {
                     Helo.ignition = !Helo.ignition;
                     break;
                 case D:
-                    if(line.getStroke() == TRANSPARENT){
-                        line.setStroke(WHITE);
+                    if(line11.getStroke() == TRANSPARENT){
+                        line11.setStroke(WHITE);
+                        line12.setStroke(WHITE);
+                        line13.setStroke(WHITE);
 
                     }else{
-                        line.setStroke(TRANSPARENT);
+                        line11.setStroke(TRANSPARENT);
+                        line12.setStroke(TRANSPARENT);
+                        line13.setStroke(TRANSPARENT);
                     }
                     break;
             }
@@ -166,7 +174,7 @@ public class RainMaker extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        canvas.getChildren().addAll(Pond1,Pond2,Pond3, Cloud, HeliPad, Helo, line);
+        canvas.getChildren().addAll(Pond1,Pond2,Pond3, Cloud, HeliPad, Helo, line11,line12,line13);
 
 
         AnimationTimer loop = new AnimationTimer() {
@@ -174,8 +182,12 @@ public class RainMaker extends Application {
 
             @Override
             public void handle(long now) {
-                line.setStartX(Cloud.getCenterX());
-                line.setStartY(Cloud.getCenterY());
+                line11.setStartX(Cloud.getCenterX());
+                line11.setStartY(Cloud.getCenterY());
+                line12.setStartX(Cloud.getCenterX());
+                line12.setStartY(Cloud.getCenterY());
+                line13.setStartX(Cloud.getCenterX());
+                line13.setStartY(Cloud.getCenterY());
                 Cloud.updateLocation();
                 Helo.updateLocation();
                 Helo.lessGas();
@@ -311,6 +323,7 @@ class Cloud extends Cloud_Pond {
         deltaY = RainMaker.WIND_SPEED * cos(toRadians(-RainMaker.WIND_DIRECTION));
         super.setLayoutY(super.getLayoutY() + deltaY);
         super.setLayoutX(super.getLayoutX() + deltaX);
+
         if(super.getLayoutX()<-50|| super.getLayoutX()> RainMaker.Width+50||super.getLayoutY()<-50|| super.getLayoutY()> RainMaker.Height+50){
             System.out.println(super.getLayoutX()+super.getLayoutY());
         super.setLayoutX(super.getLayoutX()+ -deltaX* (RainMaker.Height+50));
