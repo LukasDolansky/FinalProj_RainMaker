@@ -41,7 +41,7 @@ public class RainMaker extends Application {
     private static Pane canvas;
     static int Height = 600;
     static int Width = 400;
-    static int WIND_SPEED = 1;
+    static int WIND_SPEED = 2;
     static int WIND_DIRECTION = 105;
     public Color color = Color.TRANSPARENT;
 
