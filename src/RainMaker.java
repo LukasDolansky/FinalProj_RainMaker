@@ -35,7 +35,13 @@ public class RainMaker extends Application {
     static Pond Pond1;
     static Pond Pond2;
     static Pond Pond3;
-    static Cloud Cloud;
+    static Cloud Cloud1;
+    static Cloud Cloud2;
+    static Cloud Cloud3;
+    static Cloud Cloud4;
+    static Cloud Cloud5;
+    static lines TheLine;
+
     static HeliPad HeliPad;
     static Helo Helo;
     private static Pane canvas;
@@ -43,7 +49,7 @@ public class RainMaker extends Application {
     static int Width = 400;
     static int WIND_SPEED = 1;
     static int WIND_DIRECTION = 105;
-    public Color color = Color.TRANSPARENT;
+    public static Color color = Color.TRANSPARENT;
 
 
     @Override
@@ -77,11 +83,11 @@ public class RainMaker extends Application {
         Pond Pond1 = new Pond(XnYvalues[0][0], XnYvalues[1][0], XnYvalues[2][0] , XnYvalues[2][0], Color.BLUE);
         Pond Pond2 = new Pond(XnYvalues[0][2], XnYvalues[1][2], XnYvalues[2][2] , XnYvalues[2][2], Color.BLUE);
         Pond Pond3 = new Pond(XnYvalues[0][3], XnYvalues[1][3], XnYvalues[2][3] , XnYvalues[2][3], Color.BLUE);
-        Cloud Cloud1 = new Cloud(XnYvalues[0][1], XnYvalues[1][1], XnYvalues[2][1], 0, Color.WHITE);
-        Cloud Cloud2 = new Cloud(XnYvalues[0][4], XnYvalues[1][4], XnYvalues[2][4], 0, Color.WHITE);
-        Cloud Cloud3 = new Cloud(XnYvalues[0][5], XnYvalues[1][5], XnYvalues[2][5], 0, Color.WHITE);
-        Cloud Cloud4 = new Cloud(XnYvalues[0][6], XnYvalues[1][6], XnYvalues[2][6], 0, Color.WHITE);
-        Cloud Cloud5 = new Cloud(XnYvalues[0][7], XnYvalues[1][7], XnYvalues[2][7], 0, Color.WHITE);
+        Cloud Cloud1 = new Cloud(XnYvalues[0][1], XnYvalues[1][1], XnYvalues[2][1], 0, Color.WHITE,Pond1,Pond2,Pond3);
+        Cloud Cloud2 = new Cloud(XnYvalues[0][4], XnYvalues[1][4], XnYvalues[2][4], 0, Color.WHITE,Pond1,Pond2,Pond3);
+        Cloud Cloud3 = new Cloud(XnYvalues[0][5], XnYvalues[1][5], XnYvalues[2][5], 0, Color.WHITE,Pond1,Pond2,Pond3);
+        Cloud Cloud4 = new Cloud(XnYvalues[0][6], XnYvalues[1][6], XnYvalues[2][6], 0, Color.WHITE,Pond1,Pond2,Pond3);
+        Cloud Cloud5 = new Cloud(XnYvalues[0][7], XnYvalues[1][7], XnYvalues[2][7], 0, Color.WHITE,Pond1,Pond2,Pond3);
 
         Line line11 = new Line(Cloud1.getCenterX(), Cloud1.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
         Line line12 = new Line(Cloud1.getCenterX(), Cloud1.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
@@ -123,6 +129,8 @@ public class RainMaker extends Application {
         line52.setStroke(color);
         line53.setStroke(color);
 
+        lines lines = new lines(Pond1,Pond2,Pond3, Cloud1,
+                Cloud2,Cloud3,Cloud4,Cloud5);
         HeliPad HeliPad = new HeliPad((Width / 2), Height * 5 / 6);
         Helo Helo = new Helo(Width / 2, Height * 5 / 6);
 
@@ -140,7 +148,7 @@ public class RainMaker extends Application {
         Group root = new Group(imageView);
 
 
-        Game Game = new Game(Pond1,Pond2,Pond3, Cloud1,Cloud2,Cloud3,Cloud4,Cloud5, HeliPad, Helo);
+        Game Game = new Game(Pond1,Pond2,Pond3, Cloud1,Cloud2,Cloud3,Cloud4,Cloud5, HeliPad, Helo, TheLine);
 
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -168,7 +176,7 @@ public class RainMaker extends Application {
         });
 
         canvas = new Pane();
-        canvas.setStyle("-fx-background-color: black");
+        canvas.setStyle("-fx-background-image: url('/resources/tile.jpg'); -fx-background-position: center center; -fx-background-repeat: repeat;");
         final Scene scene = new Scene(canvas, Width, Height);
 
         scene.setOnKeyPressed(e -> {
@@ -186,7 +194,7 @@ public class RainMaker extends Application {
                     Helo.goBackward();
                     break;
                 case SPACE:
-                    Cloud.Increase(1);
+                    Cloud1.Increase(1);
                     //Helo.clip();
                     break;
                 case I:
@@ -334,10 +342,11 @@ class Game extends Pane {
     private Cloud Cloud5;
     private HeliPad HeliPad;
     private Helo Helo;
+    private lines TheLine;
 
 
     public Game(Pond Pond1, Pond Pond2,Pond Pond3,Cloud Cloud1,
-                Cloud Cloud2,Cloud Cloud3,Cloud Cloud4,Cloud Cloud5,HeliPad HeliPad, Helo Helo) {
+                Cloud Cloud2,Cloud Cloud3,Cloud Cloud4,Cloud Cloud5,HeliPad HeliPad, Helo Helo, lines TheLine) {
         this.Pond1 = Pond1;
         this.Pond2 = Pond2;
         this.Pond3 = Pond3;
@@ -348,6 +357,7 @@ class Game extends Pane {
         this.Cloud5 = Cloud5;
         this.HeliPad = HeliPad;
         this.Helo = Helo;
+        this.TheLine = TheLine;
 
 
     }
@@ -429,7 +439,7 @@ class Cloud extends Cloud_Pond {
     double deltaY;
     double deltaX;
     public Cloud(int Xcord, int Ycord, double size, double percent
-            , Color Color) {
+            , Color Color, Pond Pond1,Pond Pond2,Pond Pond3) {
         super(Xcord, Ycord, size, percent, Color);
         ReclimationTotal = percent;
 
@@ -513,6 +523,54 @@ class Cloud_Pond extends GameObject {
     }
 }
 
+class lines{
+    public lines(Pond Pond1,Pond Pond2,Pond Pond3,Cloud Cloud1,Cloud Cloud2,Cloud Cloud3,Cloud Cloud4,Cloud Cloud5) {
+        Line line11 = new Line(Cloud1.getCenterX(), Cloud1.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line12 = new Line(Cloud1.getCenterX(), Cloud1.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line13 = new Line(Cloud1.getCenterX(), Cloud1.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        Line line21 = new Line(Cloud2.getCenterX(), Cloud2.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line22 = new Line(Cloud2.getCenterX(), Cloud2.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line23 = new Line(Cloud2.getCenterX(), Cloud2.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        Line line31 = new Line(Cloud3.getCenterX(), Cloud3.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line32 = new Line(Cloud3.getCenterX(), Cloud3.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line33 = new Line(Cloud3.getCenterX(), Cloud3.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        Line line41 = new Line(Cloud4.getCenterX(), Cloud4.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line42 = new Line(Cloud4.getCenterX(), Cloud4.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line43 = new Line(Cloud4.getCenterX(), Cloud4.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        Line line51 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
+        Line line52 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
+        Line line53 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+
+        line11.setStroke(RainMaker.color);
+        line12.setStroke(RainMaker.color);
+        line13.setStroke(RainMaker.color);
+
+        line21.setStroke(RainMaker.color);
+        line22.setStroke(RainMaker.color);
+        line23.setStroke(RainMaker.color);
+
+        line31.setStroke(RainMaker.color);
+        line32.setStroke(RainMaker.color);
+        line33.setStroke(RainMaker.color);
+
+        line41.setStroke(RainMaker.color);
+        line42.setStroke(RainMaker.color);
+        line43.setStroke(RainMaker.color);
+
+        line51.setStroke(RainMaker.color);
+        line52.setStroke(RainMaker.color);
+        line53.setStroke(RainMaker.color);
+
+    }
+    public void updateLocation(Cloud Cloud1,Cloud Cloud2,Cloud Cloud3,Cloud Cloud4,Cloud Cloud5){
+
+    }
+}
+
 
 abstract class Heli extends GameObject {
     private final Circle body;
@@ -544,6 +602,7 @@ abstract class Heli extends GameObject {
 
         gasLabel = new Label("F:" + Double.toString(gas));
         getChildren().addAll(body, Nose1, Nose2, gasLabel);
+        //getChildren().addAll(gasLabel);
         super.setRotate(rotate);
         Nose2.setRotate(90);
     }
@@ -626,6 +685,7 @@ abstract class Heli extends GameObject {
             deltaY = velocity * cos(toRadians(-rotate));
             Nose1.setRotate(rotated);
             Nose2.setRotate(90 + rotated);
+
         }
 
     }
@@ -731,12 +791,12 @@ class Helo extends Heli {
     }
 
     public void updateLocation() {
-
         state.updateLocalTransforms();
         state.spin();
         super.setRotate(rotate);
         super.setLayoutY(super.getLayoutY() + deltaY);
         super.setLayoutX(super.getLayoutX() + deltaX);
+        super.setStyle("-fx-background-image: url('/resources/helocopterBeauty.png'); -fx-background-size: " + super.getWidth() + " " + super.getHeight() + ";");
     }
 
 }
