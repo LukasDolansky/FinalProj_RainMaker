@@ -47,7 +47,7 @@ public class RainMaker extends Application {
     private static Pane canvas;
     static int Height = 600;
     static int Width = 800;
-    static int WIND_SPEED = 1;
+    static double WIND_SPEED = .5;
     static int WIND_DIRECTION = 270;
     public static Color color = Color.TRANSPARENT;
 
@@ -56,6 +56,8 @@ public class RainMaker extends Application {
     public void start(final Stage primaryStage) throws FileNotFoundException {
 
         ArrayList<Cloud> Clouds = new ArrayList<Cloud>();
+        ArrayList<Pond> Ponds = new ArrayList<Pond>();
+        ArrayList<Line> lines = new ArrayList<Line>();
 
         //for (int i = 0; i<1;i++){
         //Random random = new Random();
@@ -108,34 +110,45 @@ public class RainMaker extends Application {
         Line line51 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond1.getCenterX(), Pond1.getCenterY());
         Line line52 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond2.getCenterX(), Pond2.getCenterY());
         Line line53 = new Line(Cloud5.getCenterX(), Cloud5.getCenterY(), Pond3.getCenterX(), Pond3.getCenterY());
+        lines.add(line11);
+        lines.add(line12);
+        lines.add(line13);
 
-        line11.setStroke(color);
-        line12.setStroke(color);
-        line13.setStroke(color);
+        lines.add(line21);
+        lines.add(line22);
+        lines.add(line23);
 
-        line21.setStroke(color);
-        line22.setStroke(color);
-        line23.setStroke(color);
+        lines.add(line31);
+        lines.add(line32);
+        lines.add(line33);
 
-        line31.setStroke(color);
-        line32.setStroke(color);
-        line33.setStroke(color);
+        lines.add(line41);
+        lines.add(line42);
+        lines.add(line43);
 
-        line41.setStroke(color);
-        line42.setStroke(color);
-        line43.setStroke(color);
+        lines.add(line51);
+        lines.add(line52);
+        lines.add(line53);
 
-        line51.setStroke(color);
-        line52.setStroke(color);
-        line53.setStroke(color);
+        for (int i = 0; i < lines.size(); i++){
+            lines.get(i).setStroke(color);
 
-        lines lines = new lines(Pond1,Pond2,Pond3, Cloud1,
-                Cloud2,Cloud3,Cloud4,Cloud5);
+        }
+
+        Clouds.add(Cloud1);
+        Clouds.add(Cloud2);
+        Clouds.add(Cloud3);
+        Clouds.add(Cloud4);
+        Clouds.add(Cloud5);
+
+        Ponds.add(Pond1);
+        Ponds.add(Pond2);
+        Ponds.add(Pond3);
+
+
+
         HeliPad HeliPad = new HeliPad((Width / 2), Height * 5 / 6);
         Helo Helo = new Helo(Width / 2, Height * 5 / 6);
-
-
-
 
 
         Game Game = new Game(Pond1,Pond2,Pond3, Cloud1,Cloud2,Cloud3,Cloud4,Cloud5, HeliPad, Helo, TheLine);
@@ -266,48 +279,23 @@ public class RainMaker extends Application {
 
             @Override
             public void handle(long now) {
-                line11.setStartX(Cloud1.getCenterX());
-                line11.setStartY(Cloud1.getCenterY());
-                line12.setStartX(Cloud1.getCenterX());
-                line12.setStartY(Cloud1.getCenterY());
-                line13.setStartX(Cloud1.getCenterX());
-                line13.setStartY(Cloud1.getCenterY());
+                for(int i = 0; i<Clouds.size();i++){
+                    for (int j = 0; j<3; j++){
+                        line11.setStartX(Cloud1.getCenterX());
+                        line11.setStartY(Cloud1.getCenterY());
+                        lines.get(j+(i*3)).setStartX(Clouds.get(i).getCenterX());
+                        lines.get(j+(i*3)).setStartY(Clouds.get(i).getCenterY());
 
-                line21.setStartX(Cloud2.getCenterX());
-                line21.setStartY(Cloud2.getCenterY());
-                line22.setStartX(Cloud2.getCenterX());
-                line22.setStartY(Cloud2.getCenterY());
-                line23.setStartX(Cloud2.getCenterX());
-                line23.setStartY(Cloud2.getCenterY());
-
-                line31.setStartX(Cloud3.getCenterX());
-                line31.setStartY(Cloud3.getCenterY());
-                line32.setStartX(Cloud3.getCenterX());
-                line32.setStartY(Cloud3.getCenterY());
-                line33.setStartX(Cloud3.getCenterX());
-                line33.setStartY(Cloud3.getCenterY());
-
-                line41.setStartX(Cloud4.getCenterX());
-                line41.setStartY(Cloud4.getCenterY());
-                line42.setStartX(Cloud4.getCenterX());
-                line42.setStartY(Cloud4.getCenterY());
-                line43.setStartX(Cloud4.getCenterX());
-                line43.setStartY(Cloud4.getCenterY());
-
-                line51.setStartX(Cloud5.getCenterX());
-                line51.setStartY(Cloud5.getCenterY());
-                line52.setStartX(Cloud5.getCenterX());
-                line52.setStartY(Cloud5.getCenterY());
-                line53.setStartX(Cloud5.getCenterX());
-                line53.setStartY(Cloud5.getCenterY());
+                    }
+                }
 
 
 
-                Cloud1.updateLocation();
-                Cloud2.updateLocation();
-                Cloud3.updateLocation();
-                Cloud4.updateLocation();
-                Cloud5.updateLocation();
+
+                for(int i = 0; i<Clouds.size();i++){
+                Clouds.get(i).updateLocation();
+                }
+
                 Helo.updateLocation();
                 Helo.lessGas();
                 Game.run();
@@ -497,6 +485,7 @@ class Cloud extends Cloud_Pond {
             super.setLayoutX(-1*random.nextInt(50,150));
             super.setLayoutY(random.nextInt(0,(int)(RainMaker.Height *.9)));
             variation = random.nextDouble(.5,1.5);
+            ReclimationTotal = 0;
         }
 //        if(super.getLayoutX()<-50|| super.getLayoutX()> RainMaker.Width+50||super.getLayoutY()<-50|| super.getLayoutY()> RainMaker.Height+50){
 //            System.out.println(super.getLayoutX()+super.getLayoutY());
