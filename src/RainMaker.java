@@ -60,17 +60,6 @@ public class RainMaker extends Application {
         ArrayList<Pond> Ponds = new ArrayList<Pond>();
         ArrayList<Line> lines = new ArrayList<Line>();
 
-        //for (int i = 0; i<1;i++){
-        //Random random = new Random();
-        // int x1 = random.nextInt(5, Width - 50);
-        //   int y1 = random.nextInt(0, Height / 3);
-        //     double PondNum = random.nextInt(20, 50);
-        //       double CloudNum = random.nextInt(20, 50);
-        //         Cloud Cloud = new Cloud(x2, y2, (CloudNum / 2) + 20, 0, Color.WHITE);
-        //       }
-
-
-        //Random random = new Random();
         int[][] XnYvalues = new int [3][8];
         for(int j = 0; j<8; j++){
             Random random = new Random();
@@ -199,14 +188,18 @@ public class RainMaker extends Application {
                     Helo.goBackward();
                     break;
                 case SPACE:
-                    Cloud1.Increase(1);
+                    for(int i = 0; i<Clouds.size();i++) {
+                        if (abs(Clouds.get(i).getCenterX() - Helo.getLayoutX()) < 100 &&
+                                abs(Clouds.get(i).getCenterY() - Helo.getLayoutY()) < 100) {
+                            Clouds.get(i).Increase(1);
+                        }
+                    }
                     //Helo.clip();
                     break;
                 //case R: loop.start();
                 case I:
 
                     if(Helo.getState() == 'O') {
-                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!");
                         Helo.changeStateA();
                         Helo.setState('A');
                     }if(Helo.getState() == 'P') {
@@ -215,7 +208,6 @@ public class RainMaker extends Application {
                     }else{
                         Helo.changeStateP();
                         Helo.setState('P');
-                        System.out.println("000000000000000000000");
                 }
 
 
@@ -496,6 +488,7 @@ class Cloud_Pond extends GameObject {
     }
 
     public void Increase(int x) {
+
         ReclimationTotal = ReclimationTotal + x;
         if (ReclimationTotal > 99) {
             ReclimationTotal = 100;
