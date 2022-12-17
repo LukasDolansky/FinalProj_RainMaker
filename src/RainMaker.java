@@ -19,14 +19,14 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.QuadCurve;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
 import static java.lang.Math.*;
-import static javafx.scene.paint.Color.TRANSPARENT;
-import static javafx.scene.paint.Color.WHITE;
+import static javafx.scene.paint.Color.*;
 
 
 public class RainMaker extends Application {
@@ -41,6 +41,7 @@ public class RainMaker extends Application {
     static Cloud Cloud4;
     static Cloud Cloud5;
     static lines TheLine;
+    static BezierTest BezierTest;
 
     static HeliPad HeliPad;
     static Helo Helo;
@@ -77,7 +78,6 @@ public class RainMaker extends Application {
             XnYvalues [1][j] = random.nextInt(0, 5*Height / 6);
             XnYvalues [2][j] = random.nextInt(20, 50);
         }
-
 
 
 
@@ -149,9 +149,11 @@ public class RainMaker extends Application {
 
         HeliPad HeliPad = new HeliPad((Width / 2), Height * 5 / 6);
         Helo Helo = new Helo(Width / 2, Height * 5 / 6);
+        Helo.state_char = 'O';
+        BezierTest BezierTest = new BezierTest(100,100);
 
 
-        Game Game = new Game(Pond1,Pond2,Pond3, Cloud1,Cloud2,Cloud3,Cloud4,Cloud5, HeliPad, Helo, TheLine);
+        Game Game = new Game(Ponds, Clouds, lines, HeliPad, Helo, BezierTest);
 
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -200,62 +202,34 @@ public class RainMaker extends Application {
                     Cloud1.Increase(1);
                     //Helo.clip();
                     break;
+                //case R: loop.start();
                 case I:
+
                     if(Helo.getState() == 'O') {
-                        Helo.changeStateR();
+                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        Helo.changeStateA();
                         Helo.setState('A');
                     }if(Helo.getState() == 'P') {
-                        Helo.changeStateR();
+                        Helo.changeStateA();
                         Helo.setState('A');
                     }else{
-                        Helo.changeStateO();
+                        Helo.changeStateP();
                         Helo.setState('P');
+                        System.out.println("000000000000000000000");
                 }
 
 
                     break;
                 case D:
                     if(line11.getStroke() == TRANSPARENT){
-                        line11.setStroke(WHITE);
-                        line12.setStroke(WHITE);
-                        line13.setStroke(WHITE);
-
-                        line21.setStroke(WHITE);
-                        line22.setStroke(WHITE);
-                        line23.setStroke(WHITE);
-
-                        line31.setStroke(WHITE);
-                        line32.setStroke(WHITE);
-                        line33.setStroke(WHITE);
-
-                        line41.setStroke(WHITE);
-                        line42.setStroke(WHITE);
-                        line43.setStroke(WHITE);
-
-                        line51.setStroke(WHITE);
-                        line52.setStroke(WHITE);
-                        line53.setStroke(WHITE);
-
+                        for(int i = 0; i<lines.size();i++){
+                            lines.get(i).setStroke(WHITE);
+                        }
                     }else{
-                        line11.setStroke(TRANSPARENT);
-                        line12.setStroke(TRANSPARENT);
-                        line13.setStroke(TRANSPARENT);
+                        for(int i = 0; i<lines.size();i++){
+                            lines.get(i).setStroke(TRANSPARENT);
+                        }
 
-                        line21.setStroke(TRANSPARENT);
-                        line22.setStroke(TRANSPARENT);
-                        line23.setStroke(TRANSPARENT);
-
-                        line31.setStroke(TRANSPARENT);
-                        line32.setStroke(TRANSPARENT);
-                        line33.setStroke(TRANSPARENT);
-
-                        line41.setStroke(TRANSPARENT);
-                        line42.setStroke(TRANSPARENT);
-                        line43.setStroke(TRANSPARENT);
-
-                        line51.setStroke(TRANSPARENT);
-                        line52.setStroke(TRANSPARENT);
-                        line53.setStroke(TRANSPARENT);
                     }
                     break;
             }
@@ -266,7 +240,7 @@ public class RainMaker extends Application {
         primaryStage.show();
 
         canvas.getChildren().addAll(Pond1,Pond2,Pond3, Cloud1,
-                Cloud2,Cloud3,Cloud4,Cloud5,HeliPad, Helo,
+                Cloud2,Cloud3,Cloud4,Cloud5,HeliPad, Helo, BezierTest,
                 line11,line12,line13,
                 line21,line22,line23,
                 line31,line32,line33,
@@ -281,17 +255,11 @@ public class RainMaker extends Application {
             public void handle(long now) {
                 for(int i = 0; i<Clouds.size();i++){
                     for (int j = 0; j<3; j++){
-                        line11.setStartX(Cloud1.getCenterX());
-                        line11.setStartY(Cloud1.getCenterY());
                         lines.get(j+(i*3)).setStartX(Clouds.get(i).getCenterX());
                         lines.get(j+(i*3)).setStartY(Clouds.get(i).getCenterY());
 
                     }
                 }
-
-
-
-
                 for(int i = 0; i<Clouds.size();i++){
                 Clouds.get(i).updateLocation();
                 }
@@ -319,64 +287,52 @@ public class RainMaker extends Application {
 }
 
 class Game extends Pane {
+        ArrayList<Pond> Ponds;
+        ArrayList<Cloud> Clouds;
+        ArrayList<Line> Lines;
 
-    private Pond Pond1;
-    private Pond Pond2;
-    private Pond Pond3;
-
-    private Cloud Cloud1;
-    private Cloud Cloud2;
-    private Cloud Cloud3;
-    private Cloud Cloud4;
-    private Cloud Cloud5;
-    private HeliPad HeliPad;
-    private Helo Helo;
-    private lines TheLine;
+        private BezierTest BezierTest;
+        private HeliPad HeliPad;
+        private Helo Helo;
+        int i = 0;
+        double rotationSpeed = 0;
 
 
-    public Game(Pond Pond1, Pond Pond2,Pond Pond3,Cloud Cloud1,
-                Cloud Cloud2,Cloud Cloud3,Cloud Cloud4,Cloud Cloud5,HeliPad HeliPad, Helo Helo, lines TheLine) {
-        this.Pond1 = Pond1;
-        this.Pond2 = Pond2;
-        this.Pond3 = Pond3;
-        this.Cloud1 = Cloud1;
-        this.Cloud2 = Cloud2;
-        this.Cloud3 = Cloud3;
-        this.Cloud4 = Cloud4;
-        this.Cloud5 = Cloud5;
+
+    public Game(ArrayList<Pond> ponds, ArrayList<Cloud> clouds,ArrayList<Line> line,
+                HeliPad HeliPad, Helo Helo, BezierTest BezierTest) {
+        this.Ponds = ponds;
+        this.Clouds = clouds;
+        this.Lines = line;
         this.HeliPad = HeliPad;
         this.Helo = Helo;
-        this.TheLine = TheLine;
-
-
+        this.BezierTest = BezierTest;
     }
 
-    int i = 0;
-    double rotationSpeed = 0;
-
     public void run() {
-        if(Helo.BLADE_SPEED == 2 && Helo.state_char == 'A'){
+//        if(Helo.BLADE_SPEED == 2 && Helo.state_char == 'A'){
+//            Helo.changeStateR();
+//            Helo.setState('R');
+//        }
+
+        if(Helo.state_char == 'A'  &&Helo.BLADE_SPEED >= 5){
             Helo.changeStateR();
-            Helo.setState('R');
+            Helo.state_char = 'R';
+            System.out.println("--------------------------------");
+
+        }
+        if(Helo.state_char == 'P'  &&Helo.BLADE_SPEED <= 0){
+            Helo.changeStateO();
+            Helo.state_char = 'O';
+            System.out.println("****************************");
         }
 
 
         i++;
-        System.out.println(Pond1.getHeight());
-        System.out.println(Pond1);
 
 
-        if (Helo.getIgnition()) {
-            if (i % 10 == 0 && rotationSpeed < 10) {
-                rotationSpeed = rotationSpeed + .5;
-            } else {
-                Helo.setMobility();
-            }
 
-            Helo.spin();
-            Helo.lessGas();
 
-        }
         if (!Helo.getIgnition()) {
             if (i % 10 == 0 && rotationSpeed > 0) {
                 rotationSpeed = rotationSpeed - .5;
@@ -387,19 +343,27 @@ class Game extends Pane {
         }
         if (i % 60 == 0) {
 
-            Cloud1.Increase(-1);
+            for(int j = 0; j < Clouds.size();j++){
+                Clouds.get(j).Increase(-1);
+            }
+
+
             //System.out.println("This is called " + i / 60 + " time");
-            if (Cloud1.ReclimationTotal > 29 && Cloud1.proximity(Pond1)) {
-                Pond1.Growth();
+            for(int k = 0; k<Clouds.size();k++){
+                for (int j = 0; j<3; j++){
+                    Lines.get(j+(k*3)).setStartX(Clouds.get(k).getCenterX());
+                    Lines.get(j+(k*3)).setStartY(Clouds.get(k).getCenterY());
 
+                }
             }
-            if (Cloud1.ReclimationTotal > 29 && Cloud1.proximity(Pond2)) {
-                Pond2.Growth();
-
-            }if (Cloud1.ReclimationTotal > 29 && Cloud1.proximity(Pond3)) {
-                Pond3.Growth();
-
+            for(int k = 0; k <Clouds.size();k++){
+                for(int j = 0; j <Ponds.size();j++){
+                    if(Clouds.get(k).ReclimationTotal>29 && Clouds.get(k).proximity(Ponds.get(j))){
+                        Ponds.get(j).Growth();
+                    }
+                }
             }
+
         }
 
 
@@ -596,7 +560,7 @@ abstract class Heli extends GameObject {
     double DepletionRate;
     boolean ignition = false;
     public HeliState state;
-    char state_char;
+    char state_char = 'O';
 
     public Heli(int Xcord, int Ycord) {
 
@@ -646,8 +610,8 @@ abstract class Heli extends GameObject {
 
 
         public void updateLocalTransforms() {
-            deltaX = velocity * sin(toRadians(-HeliFacing));
-            deltaY = velocity * cos(toRadians(-HeliFacing));
+            //deltaX = velocity * sin(toRadians(-HeliFacing));
+            //deltaY = velocity * cos(toRadians(-HeliFacing));
 
         }
 
@@ -700,23 +664,13 @@ abstract class Heli extends GameObject {
     }
 
     class Starting extends HeliState {
-        public void spins() {
-            BLADE_ROTATION = BLADE_ROTATION + 5;
-            Nose1.setRotate(BLADE_ROTATION);
-            Nose2.setRotate(90 + BLADE_ROTATION);
-        }
 
         public void spin() {
 
-            if (BLADE_SPEED < 2) {
+
+            if (BLADE_SPEED < 5) {
                 BLADE_SPEED = BLADE_SPEED + .01;
                 BLADE_ROTATION = BLADE_ROTATION + BLADE_SPEED;
-            } else {
-                System.out.println("Entry");
-                state = new Ready();
-                System.out.println("Success?");
-                //break;
-
             }
             Nose1.setRotate(BLADE_ROTATION);
             Nose2.setRotate(90 + BLADE_ROTATION);
@@ -729,30 +683,31 @@ abstract class Heli extends GameObject {
         }
 
         public void updateLocalTransforms() {
-            deltaX = velocity * sin(toRadians(-HeliFacing));
-            deltaY = velocity * cos(toRadians(-HeliFacing));
+            //deltaX = velocity * sin(toRadians(-HeliFacing));
+            //deltaY = velocity * cos(toRadians(-HeliFacing));
         }
 
     }
 
     class Stopping extends HeliState {
-        void spinBlades() {
-            if (BLADE_ROTATION < 0) {
-                BLADE_ROTATION -= .25;
-            } else {
-                state = new Off();
+
+        public void spin() {
+
+            if (BLADE_SPEED > .1) {
+                BLADE_SPEED = BLADE_SPEED - .01;
+                BLADE_ROTATION = BLADE_ROTATION + BLADE_SPEED;
             }
+            Nose1.setRotate(BLADE_ROTATION);
+            Nose2.setRotate(90 + BLADE_ROTATION);
         }
 
         public void updateLocalTransforms() {
+            //deltaX = velocity * sin(toRadians(-HeliFacing));
+            //deltaY = velocity * cos(toRadians(-HeliFacing));
         }
 
     }
 
-
-    public void setMobility() {
-        heliMobile = !heliMobile;
-    }
 
     public AudioClip clip() {
         if (clip == null) {
@@ -841,16 +796,41 @@ class HeliPad extends GameObject {
     private final Circle bubble;
     private final Rectangle Square;
     private final int size = RainMaker.Height / 12;
+    private final QuadCurve quadCurve;
 
 
     HeliPad(int x, int y) {
         super(x, y);
         bubble = new Circle(x, y, size);
         Square = new Rectangle(x, y, 2.5 * size, 2.5 * size);
+        quadCurve = new QuadCurve(x+10,y,x+20,y+50,x+10,y);
+
         bubble.setFill(Color.BLUEVIOLET);
         Square.setFill(Color.TURQUOISE);
-        getChildren().addAll(Square, bubble);
+
+
+        getChildren().addAll(Square, bubble,quadCurve);
         super.setLayoutX(x - (Square.getWidth() / 2));
         super.setLayoutY(y - size);
+
     }
 }
+class BezierTest extends GameObject{
+    private final Circle circle;
+    private final QuadCurve quadCurve;
+
+    BezierTest(int x,int y){
+        super(0, 0);
+        quadCurve = new QuadCurve(10.0f,500.0f,50.0f,150.0f,10.0f,100.0f);
+        //super.setLayoutX(100);
+        //super.setLayoutY(100);
+        circle = new Circle();
+        circle.setCenterX(100.0f);
+        circle.setCenterY(100.0f);
+        circle.setRadius(50.0f);
+        circle.setFill(WHITE);
+        System.out.print("yo");
+        getChildren().addAll(circle,quadCurve);
+
+    }
+    }
