@@ -46,8 +46,8 @@ public class RainMaker extends Application {
     static HeliPad HeliPad;
     static Helo Helo;
     private static Pane canvas;
-    static int Height = 600;
-    static int Width = 800;
+    static int GAME_HEIGHT = 600;
+    static int GAME_WIDTH = 800;
     static double WIND_SPEED = .5;
     static int WIND_DIRECTION = 270;
     public static Color color = Color.TRANSPARENT;
@@ -63,8 +63,8 @@ public class RainMaker extends Application {
         int[][] XnYvalues = new int [3][8];
         for(int j = 0; j<8; j++){
             Random random = new Random();
-            XnYvalues [0][j] = random.nextInt(5, 2*Width);
-            XnYvalues [1][j] = random.nextInt(0, 5*Height / 6);
+            XnYvalues [0][j] = random.nextInt(5, 2*GAME_WIDTH);
+            XnYvalues [1][j] = random.nextInt(0, 5*GAME_HEIGHT / 6);
             XnYvalues [2][j] = random.nextInt(20, 50);
         }
 
@@ -136,8 +136,8 @@ public class RainMaker extends Application {
 
 
 
-        HeliPad HeliPad = new HeliPad((Width / 2), Height * 5 / 6);
-        Helo Helo = new Helo(Width / 2, Height * 5 / 6);
+        HeliPad HeliPad = new HeliPad(GAME_WIDTH / 2, GAME_HEIGHT * 5 / 6);
+        Helo Helo = new Helo(GAME_WIDTH / 2, GAME_HEIGHT * 5 / 6);
         Helo.state_char = 'O';
         BezierTest BezierTest = new BezierTest(100,100);
 
@@ -171,7 +171,9 @@ public class RainMaker extends Application {
 
         canvas = new Pane();
         canvas.setStyle("-fx-background-image: url('/resources/tile.jpg'); -fx-background-position: center center; -fx-background-repeat: repeat;");
-        final Scene scene = new Scene(canvas, Width, Height);
+        final Scene scene = new Scene(canvas, GAME_WIDTH, GAME_HEIGHT);
+
+
 
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
@@ -190,13 +192,24 @@ public class RainMaker extends Application {
                 case SPACE:
                     for(int i = 0; i<Clouds.size();i++) {
                         if (abs(Clouds.get(i).getCenterX() - Helo.getLayoutX()) < 100 &&
-                                abs(Clouds.get(i).getCenterY() - Helo.getLayoutY()) < 100) {
+                                abs(Clouds.get(i).getCenterY() - Helo.getLayoutY()) < 100 &&
+                        Helo.getState() == 'R') {
                             Clouds.get(i).Increase(1);
                         }
                     }
                     //Helo.clip();
                     break;
                 //case R: loop.start();
+                case R:
+                    Helo.changeStateO();
+                    Helo.restart();
+                    for(int i = 0; i<Clouds.size();i++){
+                        Clouds.get(i).restart(0);
+                    }
+                    for(int i = 0; i<Ponds.size();i++){
+                        Ponds.get(i).restart(1);
+                    }
+                    break;
                 case I:
 
                     if(Helo.getState() == 'O') {
@@ -268,9 +281,12 @@ public class RainMaker extends Application {
         };
 
         loop.start();
-
-
     }
+
+
+
+
+    //////////////////end of start
 
     public static void main(final String[] args) {
 
@@ -302,18 +318,18 @@ class Game extends Pane {
     }
 
     public void run() {
-//        if(Helo.BLADE_SPEED == 2 && Helo.state_char == 'A'){
+//        if(Helo.bladeSpeed == 2 && Helo.state_char == 'A'){
 //            Helo.changeStateR();
 //            Helo.setState('R');
 //        }
 
-        if(Helo.state_char == 'A'  &&Helo.BLADE_SPEED >= 5){
+        if(Helo.state_char == 'A'  &&Helo.getBladeSpeed() >= 5){
             Helo.changeStateR();
             Helo.state_char = 'R';
             System.out.println("--------------------------------");
 
         }
-        if(Helo.state_char == 'P'  &&Helo.BLADE_SPEED <= 0){
+        if(Helo.state_char == 'P'  && Helo.getBladeSpeed() <= 0){
             Helo.changeStateO();
             Helo.state_char = 'O';
             System.out.println("****************************");
@@ -325,14 +341,14 @@ class Game extends Pane {
 
 
 
-        if (!Helo.getIgnition()) {
-            if (i % 10 == 0 && rotationSpeed > 0) {
-                rotationSpeed = rotationSpeed - .5;
-            }
-
-            Helo.spin();
-
-        }
+//        if (!Helo.getIgnition()) {
+//            if (i % 10 == 0 && rotationSpeed > 0) {
+//                rotationSpeed = rotationSpeed - .5;
+//            }
+//
+//            Helo.spin();
+//
+//        }
         if (i % 60 == 0) {
 
             for(int j = 0; j < Clouds.size();j++){
@@ -429,27 +445,28 @@ class Cloud extends Cloud_Pond {
 
 
 
+
     public void updateLocation() {
         deltaX = (RainMaker.WIND_SPEED * sin(toRadians(-RainMaker.WIND_DIRECTION)))+variation;
         deltaY = (RainMaker.WIND_SPEED * cos(toRadians(-RainMaker.WIND_DIRECTION)));
         super.setLayoutY(super.getLayoutY() + deltaY);
         super.setLayoutX(super.getLayoutX() + deltaX);
 
-        if(super.getLayoutX()>=RainMaker.Width+50){
+        if(super.getLayoutX()>=RainMaker.GAME_WIDTH+50){
             Random random = new Random();
 
             super.setLayoutX(-1*random.nextInt(50,150));
-            super.setLayoutY(random.nextInt(0,(int)(RainMaker.Height *.9)));
+            super.setLayoutY(random.nextInt(0,(int)(RainMaker.GAME_HEIGHT *.9)));
             variation = random.nextDouble(.5,1.5);
             ReclimationTotal = 0;
         }
-//        if(super.getLayoutX()<-50|| super.getLayoutX()> RainMaker.Width+50||super.getLayoutY()<-50|| super.getLayoutY()> RainMaker.Height+50){
+//        if(super.getLayoutX()<-50|| super.getLayoutX()> RainMaker.Width+50||super.getLayoutY()<-50|| super.getLayoutY()> RainMaker.GAME_HEIGHT+50){
 //            System.out.println(super.getLayoutX()+super.getLayoutY());
 //            super.setLayoutX(super.getLayoutX()+ -deltaX* (RainMaker.Width+150));
-//            super.setLayoutY(super.getLayoutY()+ -deltaY* (RainMaker.Height+50));
+//            super.setLayoutY(super.getLayoutY()+ -deltaY* (RainMaker.GAME_HEIGHT+50));
 //            if(Math.abs(super.getLayoutX()+super.getLayoutY())>1200){
 //                super.setLayoutX(RainMaker.Width/2 + -deltaX*RainMaker.Width/2);
-//                super.setLayoutY(RainMaker.Height/2+ -deltaY*RainMaker.Height/2);
+//                super.setLayoutY(RainMaker.GAME_HEIGHT/2+ -deltaY*RainMaker.GAME_HEIGHT/2);
 //            }
 //        }
     }
@@ -518,6 +535,17 @@ class Cloud_Pond extends GameObject {
     public double getReclimationTotal() {
         return ReclimationTotal;
     }
+
+    public void restart(int x){
+        Random random = new Random();
+        super.setLayoutX(random.nextInt(5, 2* RainMaker.GAME_WIDTH));
+        super.setLayoutY(random.nextInt(0, 5* RainMaker.GAME_HEIGHT / 6));
+        ReclimationTotal = x;
+        if(x !=0){
+            ReclimationTotal = random.nextInt(20, 50);
+
+        }
+    }
 }
 
 class lines{
@@ -540,27 +568,31 @@ abstract class Heli extends GameObject {
     private final Circle body;
     private final Line Nose1;
     private final Line Nose2;
-    private boolean heliMobile;
-    double velocity = 0;
+    private double velocity = 0;
     double deltaX = 0;
     double deltaY = 0;
-    int HeliFacing = 0;
-    double BLADE_ROTATION = 1;
-    double BLADE_SPEED = 1 ;
+    int heliFacing = 0;
+    double bladeRotation = 1;
+    double bladeSpeed = 1 ;
     private AudioClip clip;
     double gas = 25000;
     private final Label gasLabel;
-    double DepletionRate;
-    boolean ignition = false;
+    double depletionRate;
+    //boolean ignition = false;
     public HeliState state;
     char state_char = 'O';
+    int originX;
+    int originY;
 
     public Heli(int Xcord, int Ycord) {
 
         super(Xcord, Ycord);
-        body = new Circle(Xcord, Ycord, RainMaker.Height / 48);
-        Nose1 = new Line(0, 0, 0, RainMaker.Height / 12);
-        Nose2 = new Line(0, 0, 0, RainMaker.Height / 12);
+        originX = Xcord;
+        originY = Ycord;
+
+        body = new Circle(Xcord, Ycord, RainMaker.GAME_HEIGHT / 48);
+        Nose1 = new Line(0, 0, 0, RainMaker.GAME_HEIGHT / 12);
+        Nose2 = new Line(0, 0, 0, RainMaker.GAME_HEIGHT / 12);
 
         body.setFill(Color.YELLOWGREEN);
         Nose1.setStroke(Color.CRIMSON);
@@ -569,8 +601,22 @@ abstract class Heli extends GameObject {
         gasLabel = new Label("F:" + Double.toString(gas));
         getChildren().addAll(body, Nose1, Nose2, gasLabel);
         //getChildren().addAll(gasLabel);
-        super.setRotate(HeliFacing);
+        super.setRotate(heliFacing);
         Nose2.setRotate(90);
+    }
+    public void restart(){
+        super.setLayoutX(originX);
+        super.setLayoutY(originY);
+        heliFacing = 0;
+        state_char = 'O';
+        velocity = 0;
+        deltaX = 0;
+        deltaY = 0;
+        bladeRotation=0;
+        bladeSpeed = 0;
+        Nose1.setRotate(0);
+        Nose2.setRotate(90);
+        gas = 25000;
     }
 
 
@@ -603,8 +649,8 @@ abstract class Heli extends GameObject {
 
 
         public void updateLocalTransforms() {
-            //deltaX = velocity * sin(toRadians(-HeliFacing));
-            //deltaY = velocity * cos(toRadians(-HeliFacing));
+            //deltaX = velocity * sin(toRadians(-heliFacing));
+            //deltaY = velocity * cos(toRadians(-heliFacing));
 
         }
 
@@ -613,19 +659,19 @@ abstract class Heli extends GameObject {
     class Ready extends HeliState {
 
         void steer(int val) {
-            HeliFacing += val * 15;
-            System.out.println(HeliFacing);
+            heliFacing += val * 15;
+            System.out.println(heliFacing);
         }
 
         public void spin() {
-            BLADE_ROTATION = BLADE_ROTATION + 5;
-            Nose1.setRotate(BLADE_ROTATION);
-            Nose2.setRotate(90 + BLADE_ROTATION);
+            bladeRotation = bladeRotation + 5;
+            Nose1.setRotate(bladeRotation);
+            Nose2.setRotate(90 + bladeRotation);
         }
 
         public void lessGas() {
-            DepletionRate = 1;
-            gas = gas - DepletionRate;
+            depletionRate = 1;
+            gas = gas - depletionRate;
             gasLabel.setText("F:" + Integer.toString((int) gas));
         }
 
@@ -647,10 +693,10 @@ abstract class Heli extends GameObject {
         }
 
         public void updateLocalTransforms() {
-            deltaX = velocity * sin(toRadians(-HeliFacing));
-            deltaY = velocity * cos(toRadians(-HeliFacing));
-            Nose1.setRotate(BLADE_ROTATION);
-            Nose2.setRotate(90 + BLADE_ROTATION);
+            deltaX = velocity * sin(toRadians(-heliFacing));
+            deltaY = velocity * cos(toRadians(-heliFacing));
+            Nose1.setRotate(bladeRotation);
+            Nose2.setRotate(90 + bladeRotation);
 
         }
 
@@ -661,23 +707,23 @@ abstract class Heli extends GameObject {
         public void spin() {
 
 
-            if (BLADE_SPEED < 5) {
-                BLADE_SPEED = BLADE_SPEED + .01;
-                BLADE_ROTATION = BLADE_ROTATION + BLADE_SPEED;
+            if (bladeSpeed < 5) {
+                bladeSpeed = bladeSpeed + .01;
+                bladeRotation = bladeRotation + bladeSpeed;
             }
-            Nose1.setRotate(BLADE_ROTATION);
-            Nose2.setRotate(90 + BLADE_ROTATION);
+            Nose1.setRotate(bladeRotation);
+            Nose2.setRotate(90 + bladeRotation);
         }
 
         public void lessGas() {
-            DepletionRate = .5;
-            gas = gas - DepletionRate;
+            depletionRate = .5;
+            gas = gas - depletionRate;
             gasLabel.setText("F:" + Integer.toString((int) gas));
         }
 
         public void updateLocalTransforms() {
-            //deltaX = velocity * sin(toRadians(-HeliFacing));
-            //deltaY = velocity * cos(toRadians(-HeliFacing));
+            //deltaX = velocity * sin(toRadians(-heliFacing));
+            //deltaY = velocity * cos(toRadians(-heliFacing));
         }
 
     }
@@ -686,17 +732,17 @@ abstract class Heli extends GameObject {
 
         public void spin() {
 
-            if (BLADE_SPEED > .1) {
-                BLADE_SPEED = BLADE_SPEED - .01;
-                BLADE_ROTATION = BLADE_ROTATION + BLADE_SPEED;
+            if (bladeSpeed > .1) {
+                bladeSpeed = bladeSpeed - .01;
+                bladeRotation = bladeRotation + bladeSpeed;
             }
-            Nose1.setRotate(BLADE_ROTATION);
-            Nose2.setRotate(90 + BLADE_ROTATION);
+            Nose1.setRotate(bladeRotation);
+            Nose2.setRotate(90 + bladeRotation);
         }
 
         public void updateLocalTransforms() {
-            //deltaX = velocity * sin(toRadians(-HeliFacing));
-            //deltaY = velocity * cos(toRadians(-HeliFacing));
+            //deltaX = velocity * sin(toRadians(-heliFacing));
+            //deltaY = velocity * cos(toRadians(-heliFacing));
         }
 
     }
@@ -748,6 +794,7 @@ class Helo extends Heli {
     public char getState() {
         return state_char;
     }
+    public double getBladeSpeed(){return bladeSpeed;}
 
     public void steer(int val) {
         state.steer(val);
@@ -769,14 +816,14 @@ class Helo extends Heli {
         state.goForward();
     }
 
-    public boolean getIgnition() {
-        return ignition;
-    }
+    //public boolean getIgnition() {
+    //    return ignition;
+    //}
 
     public void updateLocation() {
         state.updateLocalTransforms();
         state.spin();
-        super.setRotate(HeliFacing);
+        super.setRotate(heliFacing);
         super.setLayoutY(super.getLayoutY() + deltaY);
         super.setLayoutX(super.getLayoutX() + deltaX);
         super.setStyle("-fx-background-image: url('/resources/helocopterBeauty.png'); -fx-background-size: " + super.getWidth() + " " + super.getHeight() + ";");
@@ -788,7 +835,7 @@ class Helo extends Heli {
 class HeliPad extends GameObject {
     private final Circle bubble;
     private final Rectangle Square;
-    private final int size = RainMaker.Height / 12;
+    private final int size = RainMaker.GAME_HEIGHT / 12;
     private final QuadCurve quadCurve;
 
 
