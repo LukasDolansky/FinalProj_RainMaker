@@ -40,7 +40,6 @@ public class RainMaker extends Application {
     static Cloud Cloud3;
     static Cloud Cloud4;
     static Cloud Cloud5;
-    static lines TheLine;
     static BezierTest BezierTest;
 
     static HeliPad HeliPad;
@@ -139,33 +138,69 @@ public class RainMaker extends Application {
         HeliPad HeliPad = new HeliPad(GAME_WIDTH / 2, GAME_HEIGHT * 5 / 6);
         Helo Helo = new Helo(GAME_WIDTH / 2, GAME_HEIGHT * 5 / 6);
         Helo.state_char = 'O';
-        BezierTest BezierTest = new BezierTest(100,100);
+        //BezierTest BezierTest = new BezierTest(100,100);
 
 
-        Game Game = new Game(Ponds, Clouds, lines, HeliPad, Helo, BezierTest);
+        Game Game = new Game(Ponds, Clouds, lines, HeliPad, Helo);
 
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Win");
-        alert.setContentText("You have Won! Play Again?");
-        alert.setHeaderText("Confirmation");
-        ButtonType buttonPlayAgain = new ButtonType("Yes");
-        ButtonType NotPlayAgain = new ButtonType("No");
-
-        alert.getButtonTypes().set(0, buttonPlayAgain);
-        alert.getButtonTypes().set(1, NotPlayAgain);
-        Stage a = (Stage) alert.getDialogPane().getScene().getWindow();
-        a.toFront();
-        alert.setOnCloseRequest(e -> {
-            ButtonType result = alert.getResult();
-            if (result != null && result == buttonPlayAgain) {
+        Alert Winning = new Alert(Alert.AlertType.CONFIRMATION);
+        Winning.setTitle("Victory");
+        Winning.setContentText("You have Won! Play Again?");
+        Winning.setHeaderText("Confirmation");
+        ButtonType Yes = new ButtonType("Yes");
+        ButtonType no = new ButtonType("No");
+        Winning.getButtonTypes().set(0,Yes);
+        Winning.getButtonTypes().set(1,no);
+        Winning.setOnCloseRequest(e->{
+            ButtonType result = Winning.getResult();
+            if (result != null && result == Yes) {
                 System.out.println("Play Again!");
 
+                Helo.restart();
+                for(int i = 0; i<Clouds.size();i++){
+                    Clouds.get(i).restart(0);
+                }
+                for(int i = 0; i<Ponds.size();i++){
+                    Ponds.get(i).restart(1);
+                }
+
+                Winning.close();
             } else {
-                a.close();
-                alert.close();
-                //stage.close();
-                System.out.println("Quit!");
+                System.out.println("CLosing");
+                Winning.close();
+                primaryStage.close();
+                System.exit(0);
+            }
+        });
+
+        Alert Losing = new Alert(Alert.AlertType.CONFIRMATION);
+        Losing.setTitle("Failure!");
+        Losing.setContentText("You have Lost! Play Again?");
+        Losing.setHeaderText("Confirmation");
+        ButtonType Si = new ButtonType("Yes");
+        ButtonType No = new ButtonType("No");
+        Losing.getButtonTypes().set(0,Si);
+        Losing.getButtonTypes().set(1,No);
+        Losing.setOnCloseRequest(e->{
+            ButtonType result = Losing.getResult();
+            if (result != null && result == Si) {
+                System.out.println("Play Again!");
+
+                Helo.restart();
+                for(int i = 0; i<Clouds.size();i++){
+                    Clouds.get(i).restart(0);
+                }
+                for(int i = 0; i<Ponds.size();i++){
+                    Ponds.get(i).restart(1);
+                }
+
+                Losing.close();
+            } else {
+                System.out.println("CLosing");
+                Losing.close();
+                primaryStage.close();
+                System.exit(0);
             }
         });
 
@@ -213,6 +248,7 @@ public class RainMaker extends Application {
                 case I:
 
                     if(Helo.getState() == 'O') {
+                        Helo.bladeSpeed=.1;
                         Helo.changeStateA();
                         Helo.setState('A');
                     }if(Helo.getState() == 'P') {
@@ -245,7 +281,7 @@ public class RainMaker extends Application {
         primaryStage.show();
 
         canvas.getChildren().addAll(Pond1,Pond2,Pond3, Cloud1,
-                Cloud2,Cloud3,Cloud4,Cloud5,HeliPad, Helo, BezierTest,
+                Cloud2,Cloud3,Cloud4,Cloud5,HeliPad, Helo,
                 line11,line12,line13,
                 line21,line22,line23,
                 line31,line32,line33,
@@ -272,9 +308,15 @@ public class RainMaker extends Application {
                 Helo.updateLocation();
                 Helo.lessGas();
                 Game.run();
-                if (Pond1.getReclimationTotal() >= 100) {
-                    a.show();
+                if (Pond1.getReclimationTotal() >= 80&&
+                        Pond2.getReclimationTotal() >= 80&&
+                        Pond3.getReclimationTotal() >= 80&&
+                Helo.getState() == 'O') {
+                    Winning.show();
 
+                }
+                if(Helo.getGas()<=0){
+                    Losing.show();
                 }
 
             }
@@ -308,13 +350,12 @@ class Game extends Pane {
 
 
     public Game(ArrayList<Pond> ponds, ArrayList<Cloud> clouds,ArrayList<Line> line,
-                HeliPad HeliPad, Helo Helo, BezierTest BezierTest) {
+                HeliPad HeliPad, Helo Helo) {
         this.Ponds = ponds;
         this.Clouds = clouds;
         this.Lines = line;
         this.HeliPad = HeliPad;
         this.Helo = Helo;
-        this.BezierTest = BezierTest;
     }
 
     public void run() {
@@ -329,7 +370,8 @@ class Game extends Pane {
             System.out.println("--------------------------------");
 
         }
-        if(Helo.state_char == 'P'  && Helo.getBladeSpeed() <= 0){
+        if(Helo.state_char == 'P'  && Helo.getBladeSpeed() < 0.1){
+            System.out.println(Helo.getBladeSpeed());
             Helo.changeStateO();
             Helo.state_char = 'O';
             System.out.println("****************************");
@@ -538,28 +580,13 @@ class Cloud_Pond extends GameObject {
 
     public void restart(int x){
         Random random = new Random();
-        super.setLayoutX(random.nextInt(5, 2* RainMaker.GAME_WIDTH));
-        super.setLayoutY(random.nextInt(0, 5* RainMaker.GAME_HEIGHT / 6));
+        super.setLayoutX(random.nextInt(5,  RainMaker.GAME_WIDTH-30));
+        super.setLayoutY(random.nextInt(0, 2* RainMaker.GAME_HEIGHT / 3));
         ReclimationTotal = x;
         if(x !=0){
             ReclimationTotal = random.nextInt(20, 50);
 
         }
-    }
-}
-
-class lines{
-    public lines(Pond Pond1,Pond Pond2,Pond Pond3,Cloud Cloud1,Cloud Cloud2,Cloud Cloud3,Cloud Cloud4,Cloud Cloud5) {
-
-
-
-    }
-
-    public void proximity(){
-
-    }
-    public void updateLocation(Cloud Cloud1,Cloud Cloud2,Cloud Cloud3,Cloud Cloud4,Cloud Cloud5){
-
     }
 }
 
@@ -605,9 +632,11 @@ abstract class Heli extends GameObject {
         Nose2.setRotate(90);
     }
     public void restart(){
+
         super.setLayoutX(originX);
         super.setLayoutY(originY);
         heliFacing = 0;
+
         state_char = 'O';
         velocity = 0;
         deltaX = 0;
@@ -772,19 +801,20 @@ class Helo extends Heli {
     }
 
     public void changeStateR() {
-        state = new Ready();
+        state = new Ready(); System.out.println("Ready");
     }
 
     public void changeStateA() {
-        state = new Starting();
+        state = new Starting(); System.out.println("Starting");
     }
 
     public void changeStateP() {
-        state = new Stopping();
+        state = new Stopping(); System.out.println("Stopping");
     }
 
     public void changeStateO() {
-        state = new Off();
+        state = new Off();        System.out.println("Off");
+
     }
 
     public void setState(char c) {
@@ -795,6 +825,7 @@ class Helo extends Heli {
         return state_char;
     }
     public double getBladeSpeed(){return bladeSpeed;}
+    public double getGas(){return gas;}
 
     public void steer(int val) {
         state.steer(val);
