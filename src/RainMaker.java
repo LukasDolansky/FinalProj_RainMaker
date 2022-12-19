@@ -209,28 +209,6 @@ public class RainMaker extends Application {
                 case DOWN:
                     Helo.goBackward();
                     break;
-                case ENTER:
-                    break;
-                case BACK_SPACE:
-                    break;
-                case TAB:
-                    break;
-                case CANCEL:
-                    break;
-                case CLEAR:
-                    break;
-                case SHIFT:
-                    break;
-                case CONTROL:
-                    break;
-                case ALT:
-                    break;
-                case PAUSE:
-                    break;
-                case CAPS:
-                    break;
-                case ESCAPE:
-                    break;
                 case SPACE:
                     for (Cloud value : Clouds) {
                         if (abs(value.getCenterX() - Helo.getLayoutX()) < 100 &&
@@ -282,416 +260,7 @@ public class RainMaker extends Application {
 
                     }
                     break;
-                case PAGE_UP:
-                    break;
-                case PAGE_DOWN:
-                    break;
-                case END:
-                    break;
-                case HOME:
-                    break;
-                case COMMA:
-                    break;
-                case MINUS:
-                    break;
-                case PERIOD:
-                    break;
-                case SLASH:
-                    break;
-                case DIGIT0:
-                    break;
-                case DIGIT1:
-                    break;
-                case DIGIT2:
-                    break;
-                case DIGIT3:
-                    break;
-                case DIGIT4:
-                    break;
-                case DIGIT5:
-                    break;
-                case DIGIT6:
-                    break;
-                case DIGIT7:
-                    break;
-                case DIGIT8:
-                    break;
-                case DIGIT9:
-                    break;
-                case SEMICOLON:
-                    break;
-                case EQUALS:
-                    break;
-                case A:
-                    break;
-                case B:
-                    break;
-                case C:
-                    break;
-                case E:
-                    break;
-                case F:
-                    break;
-                case G:
-                    break;
-                case H:
-                    break;
-                case J:
-                    break;
-                case K:
-                    break;
-                case L:
-                    break;
-                case M:
-                    break;
-                case N:
-                    break;
-                case O:
-                    break;
-                case P:
-                    break;
-                case Q:
-                    break;
-                case S:
-                    break;
-                case T:
-                    break;
-                case U:
-                    break;
-                case V:
-                    break;
-                case W:
-                    break;
-                case X:
-                    break;
-                case Y:
-                    break;
-                case Z:
-                    break;
-                case OPEN_BRACKET:
-                    break;
-                case BACK_SLASH:
-                    break;
-                case CLOSE_BRACKET:
-                    break;
-                case NUMPAD0:
-                    break;
-                case NUMPAD1:
-                    break;
-                case NUMPAD2:
-                    break;
-                case NUMPAD3:
-                    break;
-                case NUMPAD4:
-                    break;
-                case NUMPAD5:
-                    break;
-                case NUMPAD6:
-                    break;
-                case NUMPAD7:
-                    break;
-                case NUMPAD8:
-                    break;
-                case NUMPAD9:
-                    break;
-                case MULTIPLY:
-                    break;
-                case ADD:
-                    break;
-                case SEPARATOR:
-                    break;
-                case SUBTRACT:
-                    break;
-                case DECIMAL:
-                    break;
-                case DIVIDE:
-                    break;
-                case DELETE:
-                    break;
-                case NUM_LOCK:
-                    break;
-                case SCROLL_LOCK:
-                    break;
-                case F1:
-                    break;
-                case F2:
-                    break;
-                case F3:
-                    break;
-                case F4:
-                    break;
-                case F5:
-                    break;
-                case F6:
-                    break;
-                case F7:
-                    break;
-                case F8:
-                    break;
-                case F9:
-                    break;
-                case F10:
-                    break;
-                case F11:
-                    break;
-                case F12:
-                    break;
-                case F13:
-                    break;
-                case F14:
-                    break;
-                case F15:
-                    break;
-                case F16:
-                    break;
-                case F17:
-                    break;
-                case F18:
-                    break;
-                case F19:
-                    break;
-                case F20:
-                    break;
-                case F21:
-                    break;
-                case F22:
-                    break;
-                case F23:
-                    break;
-                case F24:
-                    break;
-                case PRINTSCREEN:
-                    break;
-                case INSERT:
-                    break;
-                case HELP:
-                    break;
-                case META:
-                    break;
-                case BACK_QUOTE:
-                    break;
-                case QUOTE:
-                    break;
-                case KP_UP:
-                    break;
-                case KP_DOWN:
-                    break;
-                case KP_LEFT:
-                    break;
-                case KP_RIGHT:
-                    break;
-                case DEAD_GRAVE:
-                    break;
-                case DEAD_ACUTE:
-                    break;
-                case DEAD_CIRCUMFLEX:
-                    break;
-                case DEAD_TILDE:
-                    break;
-                case DEAD_MACRON:
-                    break;
-                case DEAD_BREVE:
-                    break;
-                case DEAD_ABOVEDOT:
-                    break;
-                case DEAD_DIAERESIS:
-                    break;
-                case DEAD_ABOVERING:
-                    break;
-                case DEAD_DOUBLEACUTE:
-                    break;
-                case DEAD_CARON:
-                    break;
-                case DEAD_CEDILLA:
-                    break;
-                case DEAD_OGONEK:
-                    break;
-                case DEAD_IOTA:
-                    break;
-                case DEAD_VOICED_SOUND:
-                    break;
-                case DEAD_SEMIVOICED_SOUND:
-                    break;
-                case AMPERSAND:
-                    break;
-                case ASTERISK:
-                    break;
-                case QUOTEDBL:
-                    break;
-                case LESS:
-                    break;
-                case GREATER:
-                    break;
-                case BRACELEFT:
-                    break;
-                case BRACERIGHT:
-                    break;
-                case AT:
-                    break;
-                case COLON:
-                    break;
-                case CIRCUMFLEX:
-                    break;
-                case DOLLAR:
-                    break;
-                case EURO_SIGN:
-                    break;
-                case EXCLAMATION_MARK:
-                    break;
-                case INVERTED_EXCLAMATION_MARK:
-                    break;
-                case LEFT_PARENTHESIS:
-                    break;
-                case NUMBER_SIGN:
-                    break;
-                case PLUS:
-                    break;
-                case RIGHT_PARENTHESIS:
-                    break;
-                case UNDERSCORE:
-                    break;
-                case WINDOWS:
-                    break;
-                case CONTEXT_MENU:
-                    break;
-                case FINAL:
-                    break;
-                case CONVERT:
-                    break;
-                case NONCONVERT:
-                    break;
-                case ACCEPT:
-                    break;
-                case MODECHANGE:
-                    break;
-                case KANA:
-                    break;
-                case KANJI:
-                    break;
-                case ALPHANUMERIC:
-                    break;
-                case KATAKANA:
-                    break;
-                case HIRAGANA:
-                    break;
-                case FULL_WIDTH:
-                    break;
-                case HALF_WIDTH:
-                    break;
-                case ROMAN_CHARACTERS:
-                    break;
-                case ALL_CANDIDATES:
-                    break;
-                case PREVIOUS_CANDIDATE:
-                    break;
-                case CODE_INPUT:
-                    break;
-                case JAPANESE_KATAKANA:
-                    break;
-                case JAPANESE_HIRAGANA:
-                    break;
-                case JAPANESE_ROMAN:
-                    break;
-                case KANA_LOCK:
-                    break;
-                case INPUT_METHOD_ON_OFF:
-                    break;
-                case CUT:
-                    break;
-                case COPY:
-                    break;
-                case PASTE:
-                    break;
-                case UNDO:
-                    break;
-                case AGAIN:
-                    break;
-                case FIND:
-                    break;
-                case PROPS:
-                    break;
-                case STOP:
-                    break;
-                case COMPOSE:
-                    break;
-                case ALT_GRAPH:
-                    break;
-                case BEGIN:
-                    break;
-                case UNDEFINED:
-                    break;
-                case SOFTKEY_0:
-                    break;
-                case SOFTKEY_1:
-                    break;
-                case SOFTKEY_2:
-                    break;
-                case SOFTKEY_3:
-                    break;
-                case SOFTKEY_4:
-                    break;
-                case SOFTKEY_5:
-                    break;
-                case SOFTKEY_6:
-                    break;
-                case SOFTKEY_7:
-                    break;
-                case SOFTKEY_8:
-                    break;
-                case SOFTKEY_9:
-                    break;
-                case GAME_A:
-                    break;
-                case GAME_B:
-                    break;
-                case GAME_C:
-                    break;
-                case GAME_D:
-                    break;
-                case STAR:
-                    break;
-                case POUND:
-                    break;
-                case POWER:
-                    break;
-                case INFO:
-                    break;
-                case COLORED_KEY_0:
-                    break;
-                case COLORED_KEY_1:
-                    break;
-                case COLORED_KEY_2:
-                    break;
-                case COLORED_KEY_3:
-                    break;
-                case EJECT_TOGGLE:
-                    break;
-                case PLAY:
-                    break;
-                case RECORD:
-                    break;
-                case FAST_FWD:
-                    break;
-                case REWIND:
-                    break;
-                case TRACK_PREV:
-                    break;
-                case TRACK_NEXT:
-                    break;
-                case CHANNEL_UP:
-                    break;
-                case CHANNEL_DOWN:
-                    break;
-                case VOLUME_UP:
-                    break;
-                case VOLUME_DOWN:
-                    break;
-                case MUTE:
-                    break;
-                case COMMAND:
-                    break;
-                case SHORTCUT:
-                    break;
+
             }
         });
 
@@ -699,13 +268,13 @@ public class RainMaker extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        canvas.getChildren().addAll(Pond1,Pond2,Pond3, Cloud1,
-                Cloud2,Cloud3,Cloud4,Cloud5,HeliPad, Helo,
+        canvas.getChildren().addAll(Pond1,Pond2,Pond3,HeliPad, Cloud1,
+                Cloud2,Cloud3,Cloud4,Cloud5, Blimp, Blimpo, Helo,
                 line11,line12,line13,
                 line21,line22,line23,
                 line31,line32,line33,
                 line41,line42,line43,
-                line51,line52,line53, Blimp, Blimpo);
+                line51,line52,line53);
 
 
         AnimationTimer loop = new AnimationTimer() {
@@ -730,6 +299,10 @@ public class RainMaker extends Application {
 
                 Helo.updateLocation();
                 Helo.lessGas();
+                if (Blimp.refuel(Helo)|| Blimpo.refuel(Helo)){
+
+                    Helo.moreGas();
+                }
                 Game.run();
                 if (Pond1.getReclimationTotal() >= 80&&
                         Pond2.getReclimationTotal() >= 80&&
@@ -846,7 +419,7 @@ abstract class GameObject extends StackPane {
 
 }
 
-class Pond extends Cloud_Pond {
+class Pond extends TransientGameObject {
 
     private int Xcord;
     private int Ycord;
@@ -868,7 +441,7 @@ class Pond extends Cloud_Pond {
 
 }
 
-class Cloud extends Cloud_Pond {
+class Cloud extends TransientGameObject {
 
 
 
@@ -908,20 +481,20 @@ class Cloud extends Cloud_Pond {
 
 }
 
-class Cloud_Pond extends GameObject {
+class TransientGameObject extends GameObject {
     private double ReclimationTotal;
     private double deltaY;
     private double deltaX;
     private double variation;
     private final Circle WaterBody;
-
+    private int fuel;
     private final Circle edge;
 
     private final Label total;
     private final double size;
 
 
-    public Cloud_Pond(int Xcord, int Ycord, double size, Double percent
+    public TransientGameObject(int Xcord, int Ycord, double size, Double percent
             , Color Color) {
         super((Xcord/ 2) + 20,( Ycord/ 2) + 20);
         Random random = new Random();
@@ -956,7 +529,6 @@ class Cloud_Pond extends GameObject {
         edge.setRadius((ReclimationTotal / 2) + 22);
 
     }
-
     public void Increase(int x) {
 
         ReclimationTotal = ReclimationTotal + x;
@@ -973,18 +545,17 @@ class Cloud_Pond extends GameObject {
 
         WaterBody.setFill(c);
     }
-
     public int getCenterX() {
 
         double getCenterX = getLayoutX() + size;
         return (int) getCenterX;
     }
-
     public int getCenterY() {
         double getCenterY = getLayoutY() + size;
         return (int) getCenterY;
     }
-
+    public int getFuel(){return fuel;}
+    public void setFuel(int x){fuel = x;}
     public void restart(int x){
         Random random = new Random();
         super.setLayoutX(random.nextInt(5,  RainMaker.getGameWidth()-30));
@@ -1007,6 +578,7 @@ class Cloud_Pond extends GameObject {
             super.setLayoutX(-1 * random.nextInt(50, 450));
             super.setLayoutY(random.nextInt(0, (int) (RainMaker.getGameHeight() * .9)));
             variation = random.nextDouble(.5, 1.5);
+            fuel = 1000* random.nextInt(5,10);
 
         }
     }
@@ -1100,6 +672,8 @@ abstract class Heli extends GameObject {
 
         void lessGas() {
         }
+        void moreGas() {
+        }
 
         void steer(int val) {
         }
@@ -1145,6 +719,11 @@ abstract class Heli extends GameObject {
         public void lessGas() {
             depletionRate = 1;
             gas = gas - depletionRate;
+            gasLabel.setText("F:" + Integer.toString((int) gas));
+        }
+        public void moreGas() {
+            depletionRate = 6;
+            gas = gas + depletionRate;
             gasLabel.setText("F:" + Integer.toString((int) gas));
         }
 
@@ -1269,6 +848,9 @@ class Helo extends Heli {
     public void lessGas() {
         state.lessGas();
     }
+    public void moreGas() {
+        state.moreGas();
+    }
 
     public void goBackward() {
         state.goBackward();
@@ -1315,9 +897,10 @@ class HeliPad extends GameObject {
 
     }
 }
-class Blimp extends Cloud_Pond{
+class Blimp extends TransientGameObject{
     private final Ellipse edge;
-    private Label fuel;
+    private Label fuelCounter;
+
     private final Ellipse ellipse;
     Blimp(int x,int y){
 
@@ -1325,7 +908,7 @@ class Blimp extends Cloud_Pond{
 
         ellipse = new Ellipse();
         edge = new Ellipse();
-        fuel = new Label();
+        fuelCounter = new Label();
 
         ellipse.setCenterX(100.0f);
         ellipse.setCenterY(100.0f);
@@ -1336,23 +919,35 @@ class Blimp extends Cloud_Pond{
         ellipse.setFill(GRAY);
 
         Random random = new Random();
-
-        fuel.setText("F:"+Integer.toString(1000* random.nextInt(1,5)));
+        setFuel(1000* random.nextInt(5,10));
+        fuelCounter.setText("F:"+Integer.toString(getFuel()));
         //setTotal(Integer.toString(fuel));
-        getChildren().addAll(edge,ellipse,fuel);
+        getChildren().addAll(edge,ellipse,fuelCounter);
 
 
     }
-    public boolean refuel(){
+    public boolean refuel(Helo Helo){
 
-        return true;
+        Helo.getLayoutY();
+
+        super.getCenterY();
+        if(abs(Helo.getLayoutX()-super.getCenterX())<15&&
+                abs(Helo.getLayoutY()-super.getCenterY())<15&&
+        Helo.getState() == 'R'){
+            setFuel(getFuel() - 9);
+            return true;
+        }
+        fuelCounter.setText("F:"+Integer.toString(getFuel()));
+
+        return false;
     }
     public void restart(int x){
         Random random = new Random();
         super.setLayoutX(random.nextInt(5,  RainMaker.getGameWidth()-30));
         super.setLayoutY(random.nextInt(0, 2* RainMaker.getGameHeight() / 3));
         if(x == 2){
-            fuel.setText("F:"+(1000* random.nextInt(5,10)));
+            setFuel(1000* random.nextInt(5,10));
+            fuelCounter.setText("F:"+(getFuel()));
 
         }
     }
