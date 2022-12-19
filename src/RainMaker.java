@@ -18,10 +18,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.QuadCurve;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.*;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
@@ -32,24 +29,17 @@ import static javafx.scene.paint.Color.*;
 public class RainMaker extends Application {
 
 
-    static Pond Pond1;
-    static Pond Pond2;
-    static Pond Pond3;
-    static Cloud Cloud1;
-    static Cloud Cloud2;
-    static Cloud Cloud3;
-    static Cloud Cloud4;
-    static Cloud Cloud5;
-    static BezierTest BezierTest;
-
-    static HeliPad HeliPad;
-    static Helo Helo;
     private static Pane canvas;
-    static int GAME_HEIGHT = 600;
-    static int GAME_WIDTH = 800;
-    static double WIND_SPEED = .5;
-    static int WIND_DIRECTION = 270;
-    public static Color color = Color.TRANSPARENT;
+    private static int GAME_HEIGHT = 600;
+    private static int GAME_WIDTH = 800;
+    private static double WIND_SPEED = .5;
+    private static int WIND_DIRECTION = 270;
+    private static Color color = Color.TRANSPARENT;
+
+    public static int getGameHeight(){return GAME_HEIGHT;}
+    public static int getGameWidth(){return GAME_WIDTH;}
+    public static double getWindSpeed(){return WIND_SPEED;}
+    public static int getWindDirection(){return WIND_DIRECTION;}
 
 
     @Override
@@ -69,10 +59,12 @@ public class RainMaker extends Application {
 
 
 
-        //creating the Pond
-        Pond Pond1 = new Pond(XnYvalues[0][0], XnYvalues[1][0], XnYvalues[2][0] , XnYvalues[2][0], Color.BLUE);
-        Pond Pond2 = new Pond(XnYvalues[0][2], XnYvalues[1][2], XnYvalues[2][2] , XnYvalues[2][2], Color.BLUE);
-        Pond Pond3 = new Pond(XnYvalues[0][3], XnYvalues[1][3], XnYvalues[2][3] , XnYvalues[2][3], Color.BLUE);
+        Blimp Blimp = new Blimp(100,100);
+        Blimp Blimpo = new Blimp(100,500);
+
+        Pond Pond1 = new Pond(XnYvalues[0][0], XnYvalues[1][0], XnYvalues[2][0] , XnYvalues[2][0], CORNFLOWERBLUE);
+        Pond Pond2 = new Pond(XnYvalues[0][2], XnYvalues[1][2], XnYvalues[2][2] , XnYvalues[2][2], CORNFLOWERBLUE);
+        Pond Pond3 = new Pond(XnYvalues[0][3], XnYvalues[1][3], XnYvalues[2][3] , XnYvalues[2][3], CORNFLOWERBLUE);
         Cloud Cloud1 = new Cloud(XnYvalues[0][1], XnYvalues[1][1], XnYvalues[2][1], 0, Color.WHITE,Pond1,Pond2,Pond3);
         Cloud Cloud2 = new Cloud(XnYvalues[0][4], XnYvalues[1][4], XnYvalues[2][4], 0, Color.WHITE,Pond1,Pond2,Pond3);
         Cloud Cloud3 = new Cloud(XnYvalues[0][5], XnYvalues[1][5], XnYvalues[2][5], 0, Color.WHITE,Pond1,Pond2,Pond3);
@@ -137,11 +129,11 @@ public class RainMaker extends Application {
 
         HeliPad HeliPad = new HeliPad(GAME_WIDTH / 2, GAME_HEIGHT * 5 / 6);
         Helo Helo = new Helo(GAME_WIDTH / 2, GAME_HEIGHT * 5 / 6);
-        Helo.state_char = 'O';
+        Helo.setState('O');
         //BezierTest BezierTest = new BezierTest(100,100);
 
 
-        Game Game = new Game(Ponds, Clouds, lines, HeliPad, Helo);
+        Game Game = new Game(Ponds, Clouds, lines, HeliPad, Helo, Blimp, Blimpo);
 
 
         Alert Winning = new Alert(Alert.AlertType.CONFIRMATION);
@@ -238,6 +230,8 @@ public class RainMaker extends Application {
                 case R:
                     Helo.changeStateO();
                     Helo.restart();
+                    Blimp.restart(2);
+                    Blimpo.restart(2);
                     for(int i = 0; i<Clouds.size();i++){
                         Clouds.get(i).restart(0);
                     }
@@ -248,7 +242,7 @@ public class RainMaker extends Application {
                 case I:
 
                     if(Helo.getState() == 'O') {
-                        Helo.bladeSpeed=.1;
+                        Helo.setBladeSpeed(.1);
                         Helo.changeStateA();
                         Helo.setState('A');
                     }if(Helo.getState() == 'P') {
@@ -286,7 +280,7 @@ public class RainMaker extends Application {
                 line21,line22,line23,
                 line31,line32,line33,
                 line41,line42,line43,
-                line51,line52,line53);
+                line51,line52,line53, Blimp, Blimpo);
 
 
         AnimationTimer loop = new AnimationTimer() {
@@ -294,6 +288,7 @@ public class RainMaker extends Application {
 
             @Override
             public void handle(long now) {
+                //Updates the lines to the center of the clouds. Not needed for ponds since they dont move.
                 for(int i = 0; i<Clouds.size();i++){
                     for (int j = 0; j<3; j++){
                         lines.get(j+(i*3)).setStartX(Clouds.get(i).getCenterX());
@@ -304,6 +299,9 @@ public class RainMaker extends Application {
                 for(int i = 0; i<Clouds.size();i++){
                 Clouds.get(i).updateLocation();
                 }
+
+                Blimp.updateLocation();
+                Blimpo.updateLocation();
 
                 Helo.updateLocation();
                 Helo.lessGas();
@@ -337,43 +335,45 @@ public class RainMaker extends Application {
 }
 
 class Game extends Pane {
-        ArrayList<Pond> Ponds;
-        ArrayList<Cloud> Clouds;
-        ArrayList<Line> Lines;
+        private ArrayList<Pond> Ponds;
+        private ArrayList<Cloud> Clouds;
+        private ArrayList<Line> Lines;
 
-        private BezierTest BezierTest;
+        private Blimp Blimp;
+        private Blimp Blimpo;
         private HeliPad HeliPad;
         private Helo Helo;
-        int i = 0;
-        double rotationSpeed = 0;
+        private int i = 0;
 
 
 
     public Game(ArrayList<Pond> ponds, ArrayList<Cloud> clouds,ArrayList<Line> line,
-                HeliPad HeliPad, Helo Helo) {
+                HeliPad HeliPad, Helo Helo,Blimp Blimp ,Blimp Blimpo) {
         this.Ponds = ponds;
         this.Clouds = clouds;
         this.Lines = line;
         this.HeliPad = HeliPad;
         this.Helo = Helo;
+        this.Blimp = Blimp;
+        this.Blimpo = Blimpo;
     }
 
     public void run() {
-//        if(Helo.bladeSpeed == 2 && Helo.state_char == 'A'){
+//        if(Helo.bladeSpeed == 2 && Helo.stateChar == 'A'){
 //            Helo.changeStateR();
 //            Helo.setState('R');
 //        }
 
-        if(Helo.state_char == 'A'  &&Helo.getBladeSpeed() >= 5){
+        if(Helo.getState() == 'A'  &&Helo.getBladeSpeed() >= 5){
             Helo.changeStateR();
-            Helo.state_char = 'R';
+            Helo.setState('R');
             System.out.println("--------------------------------");
 
         }
-        if(Helo.state_char == 'P'  && Helo.getBladeSpeed() < 0.1){
+        if(Helo.getState() == 'P'  && Helo.getBladeSpeed() < 0.1){
             System.out.println(Helo.getBladeSpeed());
             Helo.changeStateO();
-            Helo.state_char = 'O';
+            Helo.setState('O');
             System.out.println("****************************");
         }
 
@@ -382,15 +382,6 @@ class Game extends Pane {
 
 
 
-
-//        if (!Helo.getIgnition()) {
-//            if (i % 10 == 0 && rotationSpeed > 0) {
-//                rotationSpeed = rotationSpeed - .5;
-//            }
-//
-//            Helo.spin();
-//
-//        }
         if (i % 60 == 0) {
 
             for(int j = 0; j < Clouds.size();j++){
@@ -408,7 +399,7 @@ class Game extends Pane {
             }
             for(int k = 0; k <Clouds.size();k++){
                 for(int j = 0; j <Ponds.size();j++){
-                    if(Clouds.get(k).ReclimationTotal>29 && Clouds.get(k).proximity(Ponds.get(j))){
+                    if(Clouds.get(k).getReclimationTotal()>29 && Clouds.get(k).proximity(Ponds.get(j))){
                         Ponds.get(j).Growth();
                     }
                 }
@@ -432,8 +423,8 @@ abstract class GameObject extends StackPane {
 
 class Pond extends Cloud_Pond {
 
-    int Xcord;
-    int Ycord;
+    private int Xcord;
+    private int Ycord;
 
     public Pond(int Xcord, int Ycord, double size, double percent,
                 Color Color) {
@@ -455,15 +446,11 @@ class Pond extends Cloud_Pond {
 class Cloud extends Cloud_Pond {
 
 
-    double deltaY;
-    double deltaX;
-    double variation;
+
     public Cloud(int Xcord, int Ycord, double size, double percent
             , Color Color, Pond Pond1,Pond Pond2,Pond Pond3) {
         super(Xcord, Ycord, size, percent, Color);
-        Random random = new Random();
-        ReclimationTotal = percent;
-        variation = random.nextDouble(.5,1.5);
+        setReclimationTotal(percent);
 
 
     }
@@ -484,24 +471,6 @@ class Cloud extends Cloud_Pond {
     }
     }
 
-
-
-
-
-    public void updateLocation() {
-        deltaX = (RainMaker.WIND_SPEED * sin(toRadians(-RainMaker.WIND_DIRECTION)))+variation;
-        deltaY = (RainMaker.WIND_SPEED * cos(toRadians(-RainMaker.WIND_DIRECTION)));
-        super.setLayoutY(super.getLayoutY() + deltaY);
-        super.setLayoutX(super.getLayoutX() + deltaX);
-
-        if(super.getLayoutX()>=RainMaker.GAME_WIDTH+50){
-            Random random = new Random();
-
-            super.setLayoutX(-1*random.nextInt(50,150));
-            super.setLayoutY(random.nextInt(0,(int)(RainMaker.GAME_HEIGHT *.9)));
-            variation = random.nextDouble(.5,1.5);
-            ReclimationTotal = 0;
-        }
 //        if(super.getLayoutX()<-50|| super.getLayoutX()> RainMaker.Width+50||super.getLayoutY()<-50|| super.getLayoutY()> RainMaker.GAME_HEIGHT+50){
 //            System.out.println(super.getLayoutX()+super.getLayoutY());
 //            super.setLayoutX(super.getLayoutX()+ -deltaX* (RainMaker.Width+150));
@@ -511,13 +480,18 @@ class Cloud extends Cloud_Pond {
 //                super.setLayoutY(RainMaker.GAME_HEIGHT/2+ -deltaY*RainMaker.GAME_HEIGHT/2);
 //            }
 //        }
-    }
+
 }
 
 class Cloud_Pond extends GameObject {
-    double ReclimationTotal;
-
+    private double ReclimationTotal;
+    private double deltaY;
+    private double deltaX;
+    private double variation;
     private final Circle WaterBody;
+
+    private final Circle edge;
+
     private final Label total;
     private double size;
 
@@ -525,18 +499,28 @@ class Cloud_Pond extends GameObject {
     public Cloud_Pond(int Xcord, int Ycord, double size, Double percent
             , Color Color) {
         super((Xcord/ 2) + 20,( Ycord/ 2) + 20);
+        Random random = new Random();
 
         this.size = size;
         WaterBody = new Circle(Xcord, Ycord, size);
+        edge = new Circle(Xcord, Ycord, size+2);
         total = new Label(Double.toString(percent) + "%");
         ReclimationTotal = percent;
 
         WaterBody.setFill(Color);
-        getChildren().addAll(WaterBody, total);
+        getChildren().addAll(edge,WaterBody, total);
+
+        variation = random.nextDouble(.5,1.5);
+
 
 
     }
-
+    public void setReclimationTotal(double x){
+        ReclimationTotal = x;
+    }
+    public double getReclimationTotal(){
+        return ReclimationTotal;
+    }
     public void Growth() {
         ReclimationTotal = ReclimationTotal + 1;
         if (ReclimationTotal > 99) {
@@ -544,6 +528,8 @@ class Cloud_Pond extends GameObject {
         }
         total.setText(Double.toString(ReclimationTotal) + "%");
         WaterBody.setRadius((ReclimationTotal / 2) + 20);
+        edge.setRadius((ReclimationTotal / 2) + 22);
+
     }
 
     public void Increase(int x) {
@@ -574,17 +560,28 @@ class Cloud_Pond extends GameObject {
         return (int) getCenterY;
     }
 
-    public double getReclimationTotal() {
-        return ReclimationTotal;
-    }
-
     public void restart(int x){
         Random random = new Random();
-        super.setLayoutX(random.nextInt(5,  RainMaker.GAME_WIDTH-30));
-        super.setLayoutY(random.nextInt(0, 2* RainMaker.GAME_HEIGHT / 3));
+        super.setLayoutX(random.nextInt(5,  RainMaker.getGameWidth()-30));
+        super.setLayoutY(random.nextInt(0, 2* RainMaker.getGameHeight() / 3));
         ReclimationTotal = x;
-        if(x !=0){
+        if(x == 1){
             ReclimationTotal = random.nextInt(20, 50);
+
+        }
+    }
+    public void updateLocation() {
+        deltaX = (RainMaker.getWindSpeed() * sin(toRadians(-RainMaker.getWindDirection()))) + variation;
+        deltaY = (RainMaker.getWindSpeed() * cos(toRadians(-RainMaker.getWindDirection())));
+        super.setLayoutY(super.getLayoutY() + deltaY);
+        super.setLayoutX(super.getLayoutX() + deltaX);
+
+        if (super.getLayoutX() >= RainMaker.getGameWidth() + 50) {
+            Random random = new Random();
+            ReclimationTotal = 0;
+            super.setLayoutX(-1 * random.nextInt(50, 450));
+            super.setLayoutY(random.nextInt(0, (int) (RainMaker.getGameHeight() * .9)));
+            variation = random.nextDouble(.5, 1.5);
 
         }
     }
@@ -596,20 +593,19 @@ abstract class Heli extends GameObject {
     private final Line Nose1;
     private final Line Nose2;
     private double velocity = 0;
-    double deltaX = 0;
-    double deltaY = 0;
-    int heliFacing = 0;
-    double bladeRotation = 1;
-    double bladeSpeed = 1 ;
+    private double deltaX = 0;
+    private double deltaY = 0;
+    private int heliFacing = 0;
+    private double bladeRotation = 1;
+    private double bladeSpeed = 1 ;
     private AudioClip clip;
-    double gas = 25000;
+    private double gas = 25000;
     private final Label gasLabel;
-    double depletionRate;
-    //boolean ignition = false;
+    private double depletionRate;
     public HeliState state;
-    char state_char = 'O';
-    int originX;
-    int originY;
+    private char stateChar = 'O';
+    private int originX;
+    private int originY;
 
     public Heli(int Xcord, int Ycord) {
 
@@ -617,9 +613,9 @@ abstract class Heli extends GameObject {
         originX = Xcord;
         originY = Ycord;
 
-        body = new Circle(Xcord, Ycord, RainMaker.GAME_HEIGHT / 48);
-        Nose1 = new Line(0, 0, 0, RainMaker.GAME_HEIGHT / 12);
-        Nose2 = new Line(0, 0, 0, RainMaker.GAME_HEIGHT / 12);
+        body = new Circle(Xcord, Ycord, RainMaker.getGameHeight() / 48);
+        Nose1 = new Line(0, 0, 0, RainMaker.getGameHeight() / 12);
+        Nose2 = new Line(0, 0, 0, RainMaker.getGameHeight() / 12);
 
         body.setFill(Color.YELLOWGREEN);
         Nose1.setStroke(Color.CRIMSON);
@@ -631,13 +627,33 @@ abstract class Heli extends GameObject {
         super.setRotate(heliFacing);
         Nose2.setRotate(90);
     }
+
+    public void setState(char c) {
+        stateChar = c;
+    }
+    public char getState() {
+        return stateChar;
+    }
+    public double getBladeSpeed(){return bladeSpeed;}
+    public void setBladeSpeed(double x){bladeSpeed = x;}
+    public int getHeliFacing(){
+        return heliFacing;
+    }
+    public double getDeltaX(){
+        return deltaX;
+    }
+    public double getDeltaY(){
+        return deltaY;
+    }
+    public double getGas(){return gas;}
+
     public void restart(){
 
         super.setLayoutX(originX);
         super.setLayoutY(originY);
         heliFacing = 0;
 
-        state_char = 'O';
+        stateChar = 'O';
         velocity = 0;
         deltaX = 0;
         deltaY = 0;
@@ -647,6 +663,9 @@ abstract class Heli extends GameObject {
         Nose2.setRotate(90);
         gas = 25000;
     }
+
+
+
 
 
     abstract static class HeliState {
@@ -817,15 +836,6 @@ class Helo extends Heli {
 
     }
 
-    public void setState(char c) {
-        state_char = c;
-    }
-
-    public char getState() {
-        return state_char;
-    }
-    public double getBladeSpeed(){return bladeSpeed;}
-    public double getGas(){return gas;}
 
     public void steer(int val) {
         state.steer(val);
@@ -854,9 +864,9 @@ class Helo extends Heli {
     public void updateLocation() {
         state.updateLocalTransforms();
         state.spin();
-        super.setRotate(heliFacing);
-        super.setLayoutY(super.getLayoutY() + deltaY);
-        super.setLayoutX(super.getLayoutX() + deltaX);
+        super.setRotate(getHeliFacing());
+        super.setLayoutY(super.getLayoutY() + getDeltaY());
+        super.setLayoutX(super.getLayoutX() + getDeltaX());
         super.setStyle("-fx-background-image: url('/resources/helocopterBeauty.png'); -fx-background-size: " + super.getWidth() + " " + super.getHeight() + ";");
     }
 
@@ -866,42 +876,68 @@ class Helo extends Heli {
 class HeliPad extends GameObject {
     private final Circle bubble;
     private final Rectangle Square;
-    private final int size = RainMaker.GAME_HEIGHT / 12;
-    private final QuadCurve quadCurve;
+    private final Circle bubbleEdge;
+    private final Rectangle SquareEdge;
+    private final int size = RainMaker.getGameHeight() / 12;
 
 
     HeliPad(int x, int y) {
         super(x, y);
         bubble = new Circle(x, y, size);
         Square = new Rectangle(x, y, 2.5 * size, 2.5 * size);
-        quadCurve = new QuadCurve(x+10,y,x+20,y+50,x+10,y);
+        bubbleEdge = new Circle(x, y, size+2);
+        SquareEdge = new Rectangle(x, y, (2.5 * size)+2, (2.5 * size)+2);
 
         bubble.setFill(Color.BLUEVIOLET);
         Square.setFill(Color.TURQUOISE);
 
 
-        getChildren().addAll(Square, bubble,quadCurve);
+        getChildren().addAll(SquareEdge,Square,bubbleEdge, bubble);
         super.setLayoutX(x - (Square.getWidth() / 2));
         super.setLayoutY(y - size);
 
     }
 }
-class BezierTest extends GameObject{
-    private final Circle circle;
-    private final QuadCurve quadCurve;
+class Blimp extends Cloud_Pond{
+    private final Ellipse edge;
+    private Label fuel;
+    private final Ellipse ellipse;
+    Blimp(int x,int y){
 
-    BezierTest(int x,int y){
-        super(0, 0);
-        quadCurve = new QuadCurve(10.0f,500.0f,50.0f,150.0f,10.0f,100.0f);
-        //super.setLayoutX(100);
-        //super.setLayoutY(100);
-        circle = new Circle();
-        circle.setCenterX(100.0f);
-        circle.setCenterY(100.0f);
-        circle.setRadius(50.0f);
-        circle.setFill(WHITE);
-        System.out.print("yo");
-        getChildren().addAll(circle,quadCurve);
+        super(x, y,4,0.0,BLACK);
+
+        ellipse = new Ellipse();
+        edge = new Ellipse();
+        fuel = new Label();
+
+        ellipse.setCenterX(100.0f);
+        ellipse.setCenterY(100.0f);
+        edge.setRadiusX(82);
+        edge.setRadiusY(32);
+        ellipse.setRadiusX(80);
+        ellipse.setRadiusY(30);
+        ellipse.setFill(GRAY);
+
+        Random random = new Random();
+
+        fuel.setText("F:"+Integer.toString(1000* random.nextInt(1,5)));
+        //setTotal(Integer.toString(fuel));
+        getChildren().addAll(edge,ellipse,fuel);
+
 
     }
+    public boolean refuel(){
+        return true;
+    }
+    public void restart(int x){
+        Random random = new Random();
+        super.setLayoutX(random.nextInt(5,  RainMaker.getGameWidth()-30));
+        super.setLayoutY(random.nextInt(0, 2* RainMaker.getGameHeight() / 3));
+        if(x == 2){
+            fuel.setText("F:"+Integer.toString(1000* random.nextInt(1,5)));
+
+        }
+    }
+
+
     }
